@@ -1,0 +1,6 @@
+.input-login{
+    background-color:#f5f4f4;
+}
+.input-login:focus{
+    border-color:#793479;
+}
