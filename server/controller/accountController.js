@@ -1,8 +1,9 @@
 const db = require('../database/database')
 const account = require('../model/accountModel')
-const user = require('../model/userModel')
+const {user,user_login} = require('../model/userModel')
 const bcrypt = require('bcrypt')
 const {getToken} = require('../util')
+
 exports.signup = async (req,res)=>{
     const formdata = {
         username: req.body.username,
@@ -21,7 +22,8 @@ exports.signup = async (req,res)=>{
                 if(err){
                     res.json({status:'failed',message:'Account creation failed,please try again later'})
                 }else{
-                    account.create(formdata,{raw:true}).then(result=>{
+
+                     account.create(formdata,{raw:true}).then(result=>{
                         if(result){
                             user.create({
                                 fullname:null,
@@ -29,7 +31,10 @@ exports.signup = async (req,res)=>{
                                 address:null,
                                 dateofbirth:null,
                                 fk_account_id:result.id
-                            })                       
+                            })       
+                            user_login.create({
+                                fk_account_id: result.id
+                            })                
                             res.json({status: 'success', info:result })
                         }else{
                             res.json({status:'failed',message:'Terjadi kesalahan registrasi data'})
@@ -46,16 +51,34 @@ exports.signup = async (req,res)=>{
 exports.signin = async (req,res)=>{
     const formData= {
         email:req.body.email,
-        password:req.body.password
+        password:req.body.password,
+    }
+   
+    let newDataAgent = {
+        last_login:req.body.last_login,
+        last_ip:req.body.last_ip,
+        online:true
+    }
+    const updateUserAgent = async(id) =>{
+        try{
+            let updateAgent = await user_login.update(newDataAgent,{where:{fk_account_id:id}})  
+            if(!updateAgent){
+            console.log('Tidak dapat mengupdate user agent login')
+            }
+        }catch(err){
+            console.log(err.message)
+        }
     }
     try{
       let checkUser = await account.findOne({where:{email:formData.email}})  
+      
       if(!checkUser){
         res.json({status:'failed',message:'Please ensure your email and password are correct'})
       }else{
           bcrypt.compare(formData.password,checkUser.password,(err,result)=>{
               if(result){
-                  let token = getToken(result)
+                  let token = getToken(result)              
+                    updateUserAgent(checkUser.id)   
                   res.cookie('userInfo',token,{httpOnly: false, secure: false, maxAge: 3600000})
                   res.json({status:'success',token:token})  
               }else{

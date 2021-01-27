@@ -1,7 +1,7 @@
 
 const db = require('../database/database')
 
-const user = require('../model/userModel')
+const {user,user_login} = require('../model/userModel')
 
 exports.getData = async(req,res)=>{
     const id  = req.params.id
@@ -33,4 +33,19 @@ exports.update = async(req,res)=>{
     }).catch(err=>{
         res.json({status:'failed'})
     })  
+}
+
+exports.getAgent = async(req,res)=>{
+    const id = req.params.id
+   try{
+       let data = await user_login.findOne({where:{fk_account_id:id}})
+       if(data){
+           res.json({status:'success',info:data})
+       }else{
+           res.json({status:'failed',message:'tidak ditemukan data'})
+       }
+   }catch(err){
+        res.json({status:'failed',message:err.message})
+   }
+    
 }

@@ -1,5 +1,6 @@
 import Axios from "axios";
-
+import moment from 'moment'
+import publicIp from 'public-ip'
 import Cookie from 'js-cookie';
 import {
   USER_SIGNIN_REQUEST, 
@@ -55,8 +56,9 @@ const signin = (loginData) => async (dispatch) =>{
   try{
     let dataPost ={
       email : loginData.email,
-      password:loginData.password
-
+      password:loginData.password,
+      last_login: moment().format('YYYY/MM/DD h:mm:ss'),
+      last_ip: await publicIp.v4()  
     }
     const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost)
     if(data.status === "success"){
@@ -68,7 +70,6 @@ const signin = (loginData) => async (dispatch) =>{
       dispatch({type:USER_SIGNIN_FAIL,payload:data.message})
     }  
   }catch(err){
-    
     dispatch({type:USER_SIGNIN_FAIL,payload:err.message})
   }
 }

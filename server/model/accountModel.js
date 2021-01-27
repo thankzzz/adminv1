@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../database/database')
-const user = require('./userModel')
+const {user,user_login} = require('./userModel')
+
 const account = db.define('tb_account',{
     id:{
         primaryKey:true,
@@ -30,7 +31,7 @@ const account = db.define('tb_account',{
 })
 
 
-
+account.hasOne(user_login,{foreignKey:'fk_account_id',sourceKey:'id',onDelete:'CASCADE'})
 account.hasMany(user,{foreignKey:'fk_account_id',sourceKey:'id',onDelete:'CASCADE'})
 
 module.exports = account;

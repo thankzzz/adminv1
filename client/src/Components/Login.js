@@ -1,6 +1,8 @@
 import React,{useState} from "react";
 import {useSelector,useDispatch} from 'react-redux'
 import {signin} from '../Actions/userAction'
+import publicIp from 'public-ip'
+import moment from 'moment'
 function Login() {
   const usersignin = useSelector(state=>state.userSignin)
   const dispatch = useDispatch()
@@ -8,7 +10,8 @@ function Login() {
   const [dataUser,setDataUser] = useState({
     email:'',
     password:'',
-   
+    last_login:moment(),
+    last_ip: publicIp.v4()
   })
   const handleChangeForm = (e) =>{
     e.preventDefault()
@@ -16,7 +19,6 @@ function Login() {
   }
   const handleLogin = (e)=>{
     e.preventDefault()
-    
       dispatch(signin(dataUser))
     
   }

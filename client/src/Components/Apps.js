@@ -1,5 +1,4 @@
 import React,{useState} from 'react'
-
 import Header  from '../Layout/Header'
 import Sidebar from '../Layout/Sidebar'
 import Content from './Content'
@@ -12,11 +11,8 @@ function Apps() {
     }
     return (
         <div className="apps">
-            {/* <div className="topside ">
-                <Header handleSidebar={handleSidebar}/>
-            </div> */}
             <div className="middleside">
-                <div className="leftcomponent">
+                <div className="leftcomponent">  
                     <Sidebar sidebarCollapse={sidebarCollapse}/>
                 </div>
                 <div className="rightcomponent">

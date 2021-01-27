@@ -10,7 +10,7 @@ function Content() {
             <Switch>  
                 <Route path={`${url}/setting`} component={Setting}/>              
                 <Route path={`${url}/profile`} component={Profile}/>
-                <Route path={`${url}`} component={Dashboard}/>              
+                <Route path={`${url}/`} component={Dashboard}/>              
             </Switch>
         </React.Fragment>
     )

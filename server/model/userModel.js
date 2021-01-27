@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 const db = require('../database/database')
 const account = require('./accountModel')
+const moment = require('moment')
 const user = db.define('tb_user_info',{
     id:{
         primaryKey:true,
@@ -24,8 +25,30 @@ const user = db.define('tb_user_info',{
         allowNull: true
     }
 })
+const user_login = db.define('tb_user_login_info',{
+    id:{
+        primaryKey:true,
+        type:Sequelize.INTEGER,
+        autoIncrement:true
+    },
+    last_login:{
+        type:Sequelize.DATE,
+        allowNull:true,
+    },
+    last_ip:{
+        type:Sequelize.STRING,
+        allowNull:true
+    },
+    online:{
+        type:Sequelize.BOOLEAN,
+        allowNull:true
+    }
+})
+user_login.associate = (models)=>{
+    user_login.belongsTo(account,{foreignKey:'fk_account_id',targetKey:'id',onDelete:'CASCADE'})
+}
 user.associate = (models)=>{
     user.belongsTo(account,{foreignKey:'fk_account_id',targetKey:'id',onDelete:'CASCADE'})
 }
 
-module.exports = user;
+module.exports = {user,user_login};

@@ -1,11 +1,11 @@
 import './App.css';
-import {Route,Redirect,Switch} from 'react-router-dom'
-
+import {BrowserRouter as Router,Route,Redirect,Switch} from 'react-router-dom'
 import Login from './Components/Login';
 import { ForwardRoute,BackwardRoute } from './PrivateRoute';
 import Register from './Components/Register';
 import {useSelector} from 'react-redux'
 import Apps from './Components/Apps';
+
 function App() {
   const userSignin = useSelector(state=>state.userSignin)
   const {userInfo} = userSignin
@@ -17,14 +17,17 @@ function App() {
     }   
 }
   return (
-    <div className="App">           
+    <div className="App"> 
+    <Router>      
             <Switch>
             <Route exact path="/" > <Redirect to="/apps"/></Route>   
-            <ForwardRoute path="/apps" component={Apps} isAuthenticated={()=>checkAuth()}/>
+            <ForwardRoute  exacr path="/apps" component={Apps} isAuthenticated={()=>checkAuth()}/>
             <BackwardRoute exact path="/login" component={Login} isAuthenticated={()=>checkAuth()} />
             <Route exact path="/register" component={Register}/>
+           
             <Route path="*" isAuthenticated={()=>checkAuth()}><Redirect to="/apps"/></Route>
            </Switch>
+    </Router> 
     </div>
   );
 }

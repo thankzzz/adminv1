@@ -14,7 +14,7 @@ function Sidebar() {
                     <div className="sidebar-app">
                     <div className ="flex align-center pt-2">
                         <span className="icon-bar" onClick={(e)=>handleSidebar(e)}><i className="fas fa-bars fa-2x"></i></span>  
-                        <span className='navbar-logo'><img src={process.env.PUBLIC_URL + `assets/img/logo/logo.png`} alt="admin-logo"/></span> 
+                        <span className='navbar-logo'><img alt="admin-logo" src={process.env.PUBLIC_URL + `assets/img/logo/logo.png`} /></span> 
                     </div>
                         <ul className="vertical-menu panel-group" id="accordion">
                             
