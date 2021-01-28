@@ -1,9 +1,0 @@
-{
-    "editor.hover.enabled": false,
-  "[css]": {
-    "editor.hover.enabled": true
-  },
-  "[html]": {
-    "editor.hover.enabled": true
-  }
-}

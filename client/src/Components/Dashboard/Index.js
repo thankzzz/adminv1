@@ -7,6 +7,7 @@ function Dashboard() {
         <span><i class="fas fa-home"></i></span>
         <span>Home</span>
       </div>
+      <h1>test</h1>
     </React.Fragment>
   );
 }

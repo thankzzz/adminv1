@@ -7,11 +7,11 @@ function Content() {
     const {url} = useRouteMatch()
     return (
         <React.Fragment>
-            <Switch>  
+            <Switch>
                 <Route path={`${url}/setting`} component={Setting}/>              
                 <Route path={`${url}/profile`} component={Profile}/>
                 <Route path={`${url}/`} component={Dashboard}/>              
-            </Switch>
+                </Switch>
         </React.Fragment>
     )
 }

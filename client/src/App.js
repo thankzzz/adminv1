@@ -24,7 +24,7 @@ function App() {
             <ForwardRoute  exacr path="/apps" component={Apps} isAuthenticated={()=>checkAuth()}/>
             <BackwardRoute exact path="/login" component={Login} isAuthenticated={()=>checkAuth()} />
             <Route exact path="/register" component={Register}/>
-           
+            
             <Route path="*" isAuthenticated={()=>checkAuth()}><Redirect to="/apps"/></Route>
            </Switch>
     </Router> 

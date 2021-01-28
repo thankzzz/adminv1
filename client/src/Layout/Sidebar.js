@@ -1,5 +1,6 @@
 import React,{useState} from 'react'
 import {Link} from 'react-router-dom'
+import logo  from '../Image/logo.png'
 function Sidebar() {
     const [sidebarCollapse,setSidebarCollapse] = useState(false)
     const collapse = sidebarCollapse?"sidebar-collapse":"sidebar-show"
@@ -14,7 +15,7 @@ function Sidebar() {
                     <div className="sidebar-app">
                     <div className ="flex align-center pt-2">
                         <span className="icon-bar" onClick={(e)=>handleSidebar(e)}><i className="fas fa-bars fa-2x"></i></span>  
-                        <span className='navbar-logo'><img alt="admin-logo" src={process.env.PUBLIC_URL + `assets/img/logo/logo.png`} /></span> 
+                        <span className='navbar-logo'><img alt="admin-logo" src={process.env.PUBLIC_URL + '/assets/img/logo/logo.png'} /></span> 
                     </div>
                         <ul className="vertical-menu panel-group" id="accordion">
                             
@@ -26,7 +27,7 @@ function Sidebar() {
                                 </Link>
                             </li>
                             <li >
-                                <a  className="menu-item " data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                <a  className="menu-item " data-toggle="collapse" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
                                 <i className="fas fa-box menu-icon fa-2x"></i>
                                 <span className="menu-text"> Product</span>
                                     <i className="fas fa-chevron-left  menu-icon-rightside"></i>
