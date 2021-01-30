@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 import {Link} from 'react-router-dom'
-import logo  from '../Image/logo.png'
+
 function Sidebar() {
     const [sidebarCollapse,setSidebarCollapse] = useState(false)
     const collapse = sidebarCollapse?"sidebar-collapse":"sidebar-show"

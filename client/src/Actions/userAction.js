@@ -2,19 +2,25 @@ import Axios from "axios";
 import moment from 'moment'
 import publicIp from 'public-ip'
 import Cookie from 'js-cookie';
+import jwt_decode from "jwt-decode";
+
 import {
-  USER_SIGNIN_REQUEST, 
-  USER_SIGNIN_SUCCESS,
-  USER_SIGNIN_FAIL, 
-  USER_SIGNUP_REQUEST,
-  USER_SIGNUP_SUCCESS, 
-  USER_SIGNUP_FAIL, 
-  USER_SIGNOUT, 
+  ACCOUNT_SIGNIN_REQUEST, 
+  ACCOUNT_SIGNIN_SUCCESS,
+  ACCOUNT_SIGNIN_FAIL, 
+  ACCOUNT_SIGNUP_REQUEST,
+  ACCOUNT_SIGNUP_SUCCESS, 
+  ACCOUNT_SIGNUP_FAIL, 
+  ACCOUNT_SIGNOUT, 
+  USERINFO_FETCH_REQUEST,
+  USERINFO_FETCH_SUCCESS,
+  USERINFO_FETCH_FAIL
 } from "../Type/usertype";
+import axios from "axios";
 const signup = (formik,notificationSystem) => async (dispatch) =>{
-  dispatch({type:USER_SIGNUP_REQUEST})
+  dispatch({type:ACCOUNT_SIGNUP_REQUEST})
   if(formik.values.password !== formik.values.confirmPassword){
-    dispatch({type:USER_SIGNUP_FAIL,payload:'Password and confirm password does not match'})
+    dispatch({type:ACCOUNT_SIGNUP_FAIL,payload:'Password and confirm password does not match'})
   }else{  
     try{
       let dataPost = {
@@ -25,13 +31,13 @@ const signup = (formik,notificationSystem) => async (dispatch) =>{
       const {data} = await Axios.post('http://localhost:8080/api/account/create',dataPost)
       if(data.status === "success"){
         formik.resetForm()
-        dispatch({type:USER_SIGNUP_SUCCESS,payload:data})
+        dispatch({type:ACCOUNT_SIGNUP_SUCCESS,payload:data})
           notificationSystem.addNotification({
           message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account',
           level:'success'
         })
       }else{
-        dispatch({type:USER_SIGNUP_FAIL,payload:data.message})
+        dispatch({type:ACCOUNT_SIGNUP_FAIL,payload:data.message})
           notificationSystem.addNotification({
           message:data.message,
           level:'error'
@@ -40,7 +46,7 @@ const signup = (formik,notificationSystem) => async (dispatch) =>{
       }
       
     }catch(err){
-      dispatch({type:USER_SIGNUP_FAIL,payload:err.message})
+      dispatch({type:ACCOUNT_SIGNUP_FAIL,payload:err.message})
         notificationSystem.addNotification({
         message:err.message,
         level:'error'
@@ -52,7 +58,7 @@ const signup = (formik,notificationSystem) => async (dispatch) =>{
 }
 
 const signin = (loginData) => async (dispatch) =>{
-  dispatch({type:USER_SIGNIN_REQUEST})
+  dispatch({type:ACCOUNT_SIGNIN_REQUEST})
   try{
     let dataPost ={
       email : loginData.email,
@@ -63,18 +69,39 @@ const signin = (loginData) => async (dispatch) =>{
     const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost)
     if(data.status === "success"){
       console.log('success')
-      dispatch({type:USER_SIGNIN_SUCCESS,payload:data})
+      dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data})
       Cookie.set('userInfo',data.token)
     }else{
       console.log('failed')
-      dispatch({type:USER_SIGNIN_FAIL,payload:data.message})
+      dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:data.message})
     }  
   }catch(err){
-    dispatch({type:USER_SIGNIN_FAIL,payload:err.message})
+    dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:err.message})
   }
 }
 const signout = () => async(dispatch)=>{
   Cookie.remove("userInfo");
-  dispatch({ type: USER_SIGNOUT })
+  dispatch({ type: ACCOUNT_SIGNOUT })
 }
-export {signup,signin,signout}
+const getInfoUser = () => async(dispatch) =>{
+  dispatch({type:USERINFO_FETCH_REQUEST})
+  try{
+    let token = Cookie.getJSON('userInfo')
+    let decode = await jwt_decode(token)
+    
+    var {data} = await axios.get(`http://localhost:8080/api/user/data/${decode.id}`)
+    let tmpData = {
+      fullname:data.info.fullname,
+      address:data.info.address,
+      phone:data.info.phone,
+      dateofbirth: moment(data.info.dateofbirth).format("DD/MM/YYYY HH:MM:SS")
+      
+    }
+    
+    dispatch({type:USERINFO_FETCH_SUCCESS,payload:tmpData})
+  }catch(err){
+    dispatch({type:USERINFO_FETCH_FAIL,payload:'terjadi keslahan'})
+  }
+}
+export {signup,signin,signout,getInfoUser}
+

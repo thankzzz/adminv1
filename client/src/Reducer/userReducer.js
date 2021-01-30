@@ -1,25 +1,29 @@
 import { 
-  USER_SIGNIN_REQUEST,
-  USER_SIGNIN_SUCCESS,
-  USER_SIGNIN_FAIL, 
-  USER_SIGNUP_REQUEST, 
-  USER_SIGNUP_SUCCESS, 
-  USER_SIGNUP_FAIL, 
-  USER_SIGNOUT, 
-  USER_UPDATE_REQUEST, 
-  USER_UPDATE_SUCCESS, 
-  USER_UPDATE_FAIL } from "../Type/usertype";
+  ACCOUNT_SIGNIN_REQUEST,
+  ACCOUNT_SIGNIN_SUCCESS,
+  ACCOUNT_SIGNIN_FAIL, 
+  ACCOUNT_SIGNUP_REQUEST, 
+  ACCOUNT_SIGNUP_SUCCESS, 
+  ACCOUNT_SIGNUP_FAIL, 
+  ACCOUNT_SIGNOUT, 
+  ACCOUNT_UPDATE_REQUEST, 
+  ACCOUNT_UPDATE_SUCCESS, 
+  ACCOUNT_UPDATE_FAIL,
+  USERINFO_FETCH_REQUEST,
+  USERINFO_FETCH_SUCCESS,
+  USERINFO_FETCH_FAIL
+   } from "../Type/usertype";
 
 
 const userSigninReducer = (state = {},action) =>{
     switch(action.type){
-        case USER_SIGNIN_REQUEST:
+        case ACCOUNT_SIGNIN_REQUEST:
             return { loading: true };
-          case USER_SIGNIN_SUCCESS:
+          case ACCOUNT_SIGNIN_SUCCESS:
             return { loading: false, userInfo: action.payload };
-          case USER_SIGNIN_FAIL:
+          case ACCOUNT_SIGNIN_FAIL:
             return { loading: false, error: action.payload };
-          case USER_SIGNOUT:
+          case ACCOUNT_SIGNOUT:
             return {};
           default: return state;
     }
@@ -27,11 +31,11 @@ const userSigninReducer = (state = {},action) =>{
 
 const userUpdateReducer = (state={},action) => {
     switch (action.type) {
-        case USER_UPDATE_REQUEST:
+        case ACCOUNT_UPDATE_REQUEST:
           return { loading: true };
-        case USER_UPDATE_SUCCESS:
+        case ACCOUNT_UPDATE_SUCCESS:
           return { loading: false, userInfo: action.payload };
-        case USER_UPDATE_FAIL:
+        case ACCOUNT_UPDATE_FAIL:
           return { loading: false, error: action.payload };
         default: return state;
     }
@@ -39,13 +43,25 @@ const userUpdateReducer = (state={},action) => {
 
 const userSignupReducer = (state = {}, action) => {
     switch (action.type) {
-      case USER_SIGNUP_REQUEST:
+      case ACCOUNT_SIGNUP_REQUEST:
         return { loading: true };
-      case USER_SIGNUP_SUCCESS:
+      case ACCOUNT_SIGNUP_SUCCESS:
         return { loading: false, userInfo: action.payload };
-      case USER_SIGNUP_FAIL:
+      case ACCOUNT_SIGNUP_FAIL:
         return { loading: false, error: action.payload };
       default: return state;
     }
   }
-export {userSigninReducer,userUpdateReducer,userSignupReducer}
+
+const userProfileReducer = (state={userInfo:[]},action)=>{
+    switch(action.type){
+      case USERINFO_FETCH_REQUEST:
+        return {loading:true,userInfo:[]};
+      case USERINFO_FETCH_SUCCESS:
+        return {loading:false,userInfo:action.payload};
+      case USERINFO_FETCH_FAIL:
+        return {loading:false,error:action.payload}
+      default:return state;
+    }
+}
+export {userSigninReducer,userUpdateReducer,userSignupReducer,userProfileReducer}

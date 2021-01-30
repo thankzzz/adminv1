@@ -5,8 +5,10 @@ const {user,user_login} = require('../model/userModel')
 
 exports.getData = async(req,res)=>{
     const id  = req.params.id
+    
     try{
         let data = await user.findOne({where:{fk_account_id:id}})
+        
         if(data){
             res.json({status:'success',info:data})
         }else{

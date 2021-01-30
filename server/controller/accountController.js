@@ -77,7 +77,8 @@ exports.signin = async (req,res)=>{
       }else{
           bcrypt.compare(formData.password,checkUser.password,(err,result)=>{
               if(result){
-                  let token = getToken(result)              
+                  
+                  let token = getToken(checkUser)              
                     updateUserAgent(checkUser.id)   
                   res.cookie('userInfo',token,{httpOnly: false, secure: false, maxAge: 3600000})
                   res.json({status:'success',token:token})  

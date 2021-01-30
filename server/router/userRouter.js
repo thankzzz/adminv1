@@ -4,7 +4,7 @@ const user = require('../controller/userController')
 const {isAuth} = require('../util')
 
 //Read user Information
-Router.get('/:id',isAuth,user.getData)
+Router.get('/data/:id',user.getData)
 
 //Update user information
 Router.put('/update/:id',user.update)

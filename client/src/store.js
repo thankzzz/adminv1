@@ -4,7 +4,8 @@ import Cookie from 'js-cookie'
 import{
     userSigninReducer,
     userUpdateReducer ,
-    userSignupReducer
+    userSignupReducer,
+    userProfileReducer
 } from './Reducer/userReducer'
 import {notifReducer} from './Reducer/notifReducer'
 
@@ -17,7 +18,8 @@ const reducer  = combineReducers({
     userSignin : userSigninReducer,
     userSignup : userSignupReducer,
     userUpdate : userUpdateReducer,
-    notifInfo : notifReducer
+    notifInfo : notifReducer,
+    userInfo : userProfileReducer
 })
 const composeEnhancer = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose;
 const store = createStore(

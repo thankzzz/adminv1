@@ -5,10 +5,10 @@ require('dotenv/config')
 const getToken = (user) => {
   return jwt.sign(
     {
-      id: user._id,
-      name: user.name,
+      id: user.id,
+      name: user.username,
       email: user.email,
-      isAdmin: user.isAdmin,
+      role: user.role,
     },
     process.env.JWT_SECRET,
     {
@@ -37,7 +37,7 @@ const isAuth = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-  console.log(req.user);
+ 
   if (req.user && req.user.isAdmin) {
     return next();
   }

@@ -14,6 +14,20 @@
       line-height: 28px;
       color:#16227b;
   }
+  .heading2-sm{
+    font-style: normal;
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 28px;
+    color:#16327B;
+}
+.subheading2-sm{
+    font-style: normal;
+    font-weight: 500;
+    font-size: 12px;
+    line-height: 14px;
+    color:#827F7F;
+}
   .heading3{
     font-family: Roboto;
     font-style: normal;
@@ -28,6 +42,15 @@
     font-style: normal;
     font-weight: normal;
     font-size: 14px;
+    line-height: 16px;
+    letter-spacing: 0.07em;
+    color: #3F3939;
+}
+.subheading3-sm{
+    font-family: Roboto;
+    font-style: normal;
+    font-weight: normal;
+    font-size: 12px;
     line-height: 16px;
     letter-spacing: 0.07em;
     color: #3F3939;
@@ -337,20 +360,7 @@
            height:100px;
             object-fit: cover;
         }
-        .profile-name{
-            font-style: normal;
-            font-weight: 500;
-            font-size: 16px;
-            line-height: 28px;
-            color:#16327B;
-        }
-        .profile-email{
-            font-style: normal;
-            font-weight: 500;
-            font-size: 12px;
-            line-height: 14px;
-            color:#827F7F;
-        }
+        
         
         
         
@@ -361,7 +371,19 @@
         .heading-title-profile{
             width:100%;
             padding: 10px 20px;
-            border-radius: 3px;
+            
+            font-style: normal;
+            font-weight: bold;
+            font-size: 14px;
+            line-height: 16px;
+            
+            color:#fff;
+            background-color: #5976AF;
+        }
+        .heading-title-modal{
+            width:100%;
+            padding: 10px 20px;
+           
             font-style: normal;
             font-weight: bold;
             font-size: 14px;
@@ -378,6 +400,7 @@
             display:flex;
             align-items: center;
         }
+        
     /* End Content side */
 
 @media (min-width: 1199.98px) { 
@@ -487,6 +510,11 @@
         height:100%;
         overflow:auto;
     }
-
+    .pd-top{
+        padding-top:40px;
+    }
+    .border-right-modal{
+        border-right:1px solid #DBDFEA;
+    }
     /* End Component Content */
 }
