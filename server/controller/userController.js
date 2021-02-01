@@ -1,7 +1,7 @@
 
 const db = require('../database/database')
 
-const {user,user_login} = require('../model/userModel')
+const {user,user_login,user_history} = require('../model/userModel')
 
 exports.getData = async(req,res)=>{
     const id  = req.params.id
@@ -50,4 +50,13 @@ exports.getAgent = async(req,res)=>{
         res.json({status:'failed',message:err.message})
    }
     
+}
+
+exports.getHistory = async(req,res)=>{
+    const id = req.params.id
+    user_history.findAll({where:{fk_account_id:id}}).then(result=>{
+        res.json({status:'success',info:result})
+    }).catch(err=>{
+        res.json({status:'failed',message:err.message})
+    })   
 }

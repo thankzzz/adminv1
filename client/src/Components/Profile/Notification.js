@@ -1,18 +1,15 @@
 import React,{useState} from 'react'
 
-function Notification({content}) {
+function Notification() {
     const [notif,setNotif] = useState({
         setting1:false,
         setting2:false,
         setting3:false,
         setting4:false,
     })
-    const handleNotif = (e) =>{
-        e.preventDefault()
-        console.log(e.target.name)
-    }
+    
     return (
-        <div className={`tab-pane ${content === "menu2"?"active":"fade"}`}>
+       
             <div className="flex flex-column pd-top">
                 <div className="heading2 pb-2">Notification Setting</div>
                 <div className="subheading3 pb-4">You will only get notification what have enabled</div>
@@ -65,7 +62,7 @@ function Notification({content}) {
                                      
              
             </div>
-        </div>
+        
     )
 }
 

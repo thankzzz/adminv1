@@ -400,7 +400,27 @@
             display:flex;
             align-items: center;
         }
-        
+        .listhistory-item{
+            cursor: pointer;
+            display:flex;
+            align-items: center;
+            padding:5px 20px;
+            background-color: #49474E;
+            color:#fff;
+            font-weight:500;
+            font-size: 12px;
+            border-radius: 3px;
+            margin-bottom:10px;
+        }
+        .listhistory-item:hover{
+            filter: drop-shadow(0px 4px 4px rgba(96, 110, 183, 0.49));
+        }
+        .history-content{
+            width:60rem;
+            white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+        }
     /* End Content side */
 
 @media (min-width: 1199.98px) { 
@@ -497,7 +517,6 @@
         height:100%;
         background-color:#fff;
         border-radius:3px;
-      
     }
     .aside-left{
         width:400px;

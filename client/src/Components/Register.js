@@ -83,9 +83,7 @@ function Register() {
                       type="password"
                       name="password"
                       className="form-control mb-6 input-login"
-                      placeholder="Password"
-                     
-                      
+                      placeholder="Password"                                           
                     />
                   </div>
                   <ErrorMessage component={TextError} name='password'/>

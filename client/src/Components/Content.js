@@ -4,7 +4,8 @@ import Profile from './Profile/Index'
 import Dashboard from './Dashboard/Index'
 import Setting from './Settings/Index'
 function Content() {
-    const {url} = useRouteMatch()
+    const {url,path} = useRouteMatch()
+    console.log(url)
     return (
         <React.Fragment>
             <Switch>

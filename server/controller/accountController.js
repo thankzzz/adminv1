@@ -1,6 +1,6 @@
 const db = require('../database/database')
 const account = require('../model/accountModel')
-const {user,user_login} = require('../model/userModel')
+const {user,user_login,user_history} = require('../model/userModel')
 const bcrypt = require('bcrypt')
 const {getToken} = require('../util')
 
@@ -22,7 +22,7 @@ exports.signup = async (req,res)=>{
                 if(err){
                     res.json({status:'failed',message:'Account creation failed,please try again later'})
                 }else{
-
+                    
                      account.create(formdata,{raw:true}).then(result=>{
                         if(result){
                             user.create({
@@ -109,14 +109,17 @@ exports.delete = async(req,res)=>{
 
 exports.reset = async(req,res) =>{
     var id  = req.params.id
-    var oldpassword = req.body.oldpassword
-    var newpassword = req.body.newpassword
+    var oldpassword = req.body.oldPassword
+    var newpassword = req.body.newPassword
     let data = await account.findOne({where:{id:id}})
     if(data){
         bcrypt.compare(oldpassword,data.password,(err,result)=>{
             if(err){
                 console.log(err.message)
-            }else if(result){
+            }else if(!result){
+                
+                res.json({status:'failed',message:'Old password you have entered is incorrect'})
+            }else{
                 bcrypt.hash(newpassword ,10,(err,hash)=>{
                     if(err){
                         res.json({status:'failed',message:'Terjadi kesalahan pada server'})
@@ -126,8 +129,7 @@ exports.reset = async(req,res) =>{
                         })
                     }
                 })
-            }else{
-                res.json({status:'failed',message:'Old password you have entered is incorrect'})
+                
             }
         })
     }

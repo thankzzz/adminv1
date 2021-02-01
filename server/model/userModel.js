@@ -44,6 +44,20 @@ const user_login = db.define('tb_user_login_info',{
         allowNull:true
     }
 })
+const user_history = db.define('tb_user_history',{
+    id:{
+        primaryKey:true,
+        type:Sequelize.INTEGER,
+        autoIncrement:true
+    },
+    history:{
+        type:Sequelize.DATE,
+        allowNull:true,
+    }
+})
+user_history.associate = (models)=>{
+    user_login.belongsTo(account,{foreignKey:'fk_account_id',targetKey:'id',onDelete:'CASCADE'})
+}
 user_login.associate = (models)=>{
     user_login.belongsTo(account,{foreignKey:'fk_account_id',targetKey:'id',onDelete:'CASCADE'})
 }
@@ -51,4 +65,4 @@ user.associate = (models)=>{
     user.belongsTo(account,{foreignKey:'fk_account_id',targetKey:'id',onDelete:'CASCADE'})
 }
 
-module.exports = {user,user_login};
+module.exports = {user,user_login,user_history};

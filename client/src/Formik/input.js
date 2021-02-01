@@ -3,7 +3,7 @@ import { Field} from 'formik'
 
 
 function Input (props) {
-  const { label, name, icon, ...rest } = props
+  const { name, icon, ...rest } = props
   return (
     <React.Fragment>
       <Field id={name} name={name} {...rest}/>

@@ -1,6 +1,7 @@
 import React,{useState} from 'react'
 import {Link} from 'react-router-dom'
-
+import {useDispatch} from 'react-redux'
+import {signout} from '../Actions/userAction'
 function Sidebar() {
     const [sidebarCollapse,setSidebarCollapse] = useState(false)
     const collapse = sidebarCollapse?"sidebar-collapse":"sidebar-show"
@@ -8,6 +9,7 @@ function Sidebar() {
         e.preventDefault()
         setSidebarCollapse(!sidebarCollapse)
     }
+    const dispatch = useDispatch()
     return (
         <div className={`${collapse}`}>
         <div className={`leftside-container`}>
@@ -90,7 +92,7 @@ function Sidebar() {
                                 <span className="menu-text">Profile   </span>                        
                                 </Link>
                             </li>                          
-                            <li>
+                            <li onClick={()=>dispatch(signout())}>
                                 <a href="/#" className="menu-item">
                                 <i className="fas fa-sign-out-alt menu-icon fa-2x"></i>
                                 <span className="menu-text">Sign Out   </span>                        

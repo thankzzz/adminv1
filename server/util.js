@@ -9,6 +9,7 @@ const getToken = (user) => {
       name: user.username,
       email: user.email,
       role: user.role,
+      updatedAt:user.updatedAt
     },
     process.env.JWT_SECRET,
     {
