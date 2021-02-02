@@ -1,11 +1,13 @@
 const db = require('../database/database')
 const account = require('../model/accountModel')
-const {user,user_login,user_history} = require('../model/userModel')
+const {user,user_login,user_history,user_setting} = require('../model/userModel')
 const bcrypt = require('bcrypt')
 const {getToken} = require('../util')
+const uuid = require('uuid');
 
 exports.signup = async (req,res)=>{
     const formdata = {
+        id:uuid.v1(),
         username: req.body.username,
         email:req.body.email,
         password: req.body.password,
@@ -23,23 +25,35 @@ exports.signup = async (req,res)=>{
                     res.json({status:'failed',message:'Account creation failed,please try again later'})
                 }else{
                     
-                     account.create(formdata,{raw:true}).then(result=>{
-                        if(result){
-                            user.create({
-                                fullname:null,
-                                phone:null,
-                                address:null,
-                                dateofbirth:null,
-                                fk_account_id:result.id
-                            })       
-                            user_login.create({
-                                fk_account_id: result.id
-                            })                
-                            res.json({status: 'success', info:result })
-                        }else{
-                            res.json({status:'failed',message:'Terjadi kesalahan registrasi data'})
-                        }
-                         
+                     account.create(formdata,{raw:true})
+                    .then(result=>{
+                    return  user.create({
+                                    fullname:null,
+                                    phone:null,
+                                    address:null,
+                                    dateofbirth:null,
+                                    fk_account_id:result.id
+                                })                                                                              
+                    })
+                    .then(()=>{
+                       return user_login.create({
+                            last_login:null,
+                            last_ip:null,
+                            online:false,
+                            fk_account_id:formdata.id
+                         }) 
+                    })   
+                    .then(()=>{
+                        return user_setting.create({
+                            store_activity:false,
+                            fk_account_id:formdata.id
+                        })
+                    })               
+                    .then(result=>{
+                        return  res.json({status: 'success', info:result })
+                    })
+                    .catch(err=>{
+                        res.json({status:'failed',message:err.message})
                     })
                 }
             })
@@ -57,31 +71,34 @@ exports.signin = async (req,res)=>{
     let newDataAgent = {
         last_login:req.body.last_login,
         last_ip:req.body.last_ip,
+        last_country:req.body.last_country,
+        last_city:req.body.last_city,
         online:true
     }
-    const updateUserAgent = async(id) =>{
-        try{
-            let updateAgent = await user_login.update(newDataAgent,{where:{fk_account_id:id}})  
-            if(!updateAgent){
-            console.log('Tidak dapat mengupdate user agent login')
-            }
-        }catch(err){
-            console.log(err.message)
-        }
-    }
+    
     try{
       let checkUser = await account.findOne({where:{email:formData.email}})  
-      
       if(!checkUser){
         res.json({status:'failed',message:'Please ensure your email and password are correct'})
       }else{
           bcrypt.compare(formData.password,checkUser.password,(err,result)=>{
-              if(result){
-                  
+              if(result){                
                   let token = getToken(checkUser)              
-                    updateUserAgent(checkUser.id)   
-                  res.cookie('userInfo',token,{httpOnly: false, secure: false, maxAge: 3600000})
-                  res.json({status:'success',token:token})  
+                  user_login.update(newDataAgent,{where:{fk_account_id:checkUser.id}})
+                  .then(()=>{
+                        return user_setting.findOne({where:{fk_account_id:checkUser.id}})
+                  })
+                  .then(result=>{                                        
+                    if(result.store_activity){
+                            user_history.create({history:`You login in ${newDataAgent.last_city} ${newDataAgent.last_country}`,fk_account_id:checkUser.id}) 
+                          } 
+                          res.cookie('userInfo',token,{httpOnly: false, secure: false, maxAge: 3600000})
+                          res.json({status:'success',token:token})  
+                  })
+                  .catch(err=>{
+                      res.json({status:'failed',message:err.message})
+                  })
+                                             
               }else{
                 res.json({status:'failed',message:'Please ensure your email and password are correct'})
               }
@@ -123,10 +140,20 @@ exports.reset = async(req,res) =>{
                 bcrypt.hash(newpassword ,10,(err,hash)=>{
                     if(err){
                         res.json({status:'failed',message:'Terjadi kesalahan pada server'})
-                    }else{
-                        account.update({password:hash},{where:{id:id}}).then(result1=>{
-                            res.json({status:'success',info:result1})
-                        })
+                    }else{    
+                       
+                           account.update({password:hash},{where:{id:id}})
+                           .then(()=>{
+                              user_setting.findOne({where:{fk_account_id:id}})})
+                            .then(result1=>{                              
+                                if(result1.store_activity){
+                                    user_history.create({history:`You changed password`,fk_account_id:id}) 
+                                }  
+                                res.json({status:'success',info:result1})
+                            })
+                            .catch(err=>{
+                                res.json({status:'failed',info:err.message})
+                            })                                                  
                     }
                 })
                 

@@ -298,7 +298,7 @@
         color:#fff;
     }
     .submenu-container .submenu-item:hover{
-        background-color:#dddddd;
+        background-color:#6988C6;
         
     }
     .submenu-container .submenu-item .submenu-icon{
@@ -308,7 +308,7 @@
         
     } 
     .submenu-item:hover .submenu-icon , .submenu-item:hover .submenu-text{
-        color:#590995;
+        color:#fff;
         font-weight:700;
     }
 
@@ -363,10 +363,14 @@
         
         
         
-        
-
-        .option-profile:hover span{
+        .active-link{
             color:#6071CB !important;
+        }
+        .active-link span{
+            color:#6071CB !important
+        }
+        .option-profile:hover span{
+            color:#6071CB ;
         }
         .heading-title-profile{
             width:100%;
@@ -401,11 +405,11 @@
             align-items: center;
         }
         .listhistory-item{
-            cursor: pointer;
+           
             display:flex;
             align-items: center;
             padding:5px 20px;
-            background-color: #49474E;
+            background-color: #2B4B9B;
             color:#fff;
             font-weight:500;
             font-size: 12px;
@@ -491,7 +495,7 @@
         left:calc(100% + 8px);
         z-index:999;
         width:300px;        
-        background-color:#1f6f8b;
+        background-color:#375DA8;
         padding:0 0.2rem;
     }
     .navbar-item{

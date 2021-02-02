@@ -12,6 +12,12 @@ Router.put('/update/:id',user.update)
 //get user last login and ip
 Router.get('/agent/:id',user.getAgent)
 
+
 Router.get('/history/:id',user.getHistory)
+
+
+Router.get('/setting/:id',user.getSetting)
+
+Router.put('/setting/update/:id',user.updateSetting)
 
 module.exports = Router

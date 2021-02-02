@@ -45,6 +45,7 @@ function Register() {
                   <span>SIGN UP</span>
                 </div>
                 <div className="login-body">
+                  <form>
                   <div className="form-control-wrap">
                     <div className="form-icon form-icon-left">
                       <i className="far fa-user"></i>
@@ -83,7 +84,8 @@ function Register() {
                       type="password"
                       name="password"
                       className="form-control mb-6 input-login"
-                      placeholder="Password"                                           
+                      placeholder="Password" 
+                      autoComplete="off"                                          
                     />
                   </div>
                   <ErrorMessage component={TextError} name='password'/>
@@ -96,7 +98,8 @@ function Register() {
                       type="password"
                       name="confirmPassword"
                       className="form-control mb-6 input-login"
-                      placeholder="Confirm Password"                     
+                      placeholder="Confirm Password" 
+                      autoComplete="off"                    
                     />
                   </div>
                   <ErrorMessage component={TextError} name='confirmPassword'/>
@@ -113,6 +116,7 @@ function Register() {
                       Sign In
                     </a>
                   </div>
+                  </form>
                 </div>
               </div>
             </div>

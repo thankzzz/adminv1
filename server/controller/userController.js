@@ -1,7 +1,7 @@
 
 const db = require('../database/database')
 
-const {user,user_login,user_history} = require('../model/userModel')
+const {user,user_login,user_history, user_setting} = require('../model/userModel')
 
 exports.getData = async(req,res)=>{
     const id  = req.params.id
@@ -53,10 +53,30 @@ exports.getAgent = async(req,res)=>{
 }
 
 exports.getHistory = async(req,res)=>{
+    
     const id = req.params.id
+    
     user_history.findAll({where:{fk_account_id:id}}).then(result=>{
         res.json({status:'success',info:result})
     }).catch(err=>{
         res.json({status:'failed',message:err.message})
     })   
+}
+exports.getSetting = async(req,res)=>{
+    const id = req.params.id
+    user_setting.findOne({where:{fk_account_id:id}}).then(result=>{
+        res.json({status:'success',info:result})
+    }).catch(err=>{
+        res.json({status:'failed',message:err.message})
+    })
+}
+exports.updateSetting = async(req,res)=>{
+    const id = req.params.id
+    const activity_store = req.body.store_activity
+    console.log(activity_store)
+    user_setting.update({store_activity:activity_store},{where:{fk_account_id:id}}).then(result=>{
+        res.json({status:'success'})
+    }).catch(err=>{
+        res.json({status:'failed',message:err.message})
+    })
 }

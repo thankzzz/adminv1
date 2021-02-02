@@ -1,12 +1,7 @@
-import React,{useState} from 'react'
+import React from 'react'
 
 function Notification() {
-    const [notif,setNotif] = useState({
-        setting1:false,
-        setting2:false,
-        setting3:false,
-        setting4:false,
-    })
+    
     
     return (
        
@@ -19,14 +14,14 @@ function Notification() {
                     <div className="flex">
                         <div className="w-auto ">
                             <input className="checkbox-switch hidden" type="checkbox" id="setting1"/>
-                            <label className='switch-btn' for="setting1"></label>    
+                            <label className='switch-btn' htmlFor="setting1"></label>    
                         </div>               
                         <div className="subheading3-sm pl-4">Email me whenever encounter unusual activity</div> 
                     </div> 
                     <div className="flex">
                         <div className="w-auto ">
                             <input className="checkbox-switch hidden" type="checkbox" id="setting2"/>
-                            <label className='switch-btn' for="setting2"></label>    
+                            <label className='switch-btn' htmlFor="setting2"></label>    
                         </div>                              
                         <div className="subheading3-sm pl-4">Email me if new browser is used to sign in</div> 
                     </div> 
@@ -38,7 +33,7 @@ function Notification() {
                     <div className="flex">
                         <div className="w-auto">
                             <input className="checkbox-switch hidden" type="checkbox" id="setting3"/>
-                            <label className='switch-btn' for="setting3"></label>    
+                            <label className='switch-btn' htmlFor="setting3"></label>    
                         </div>                             
                         <div className="subheading3-sm pl-4">Notify me by email about sales and latest news</div> 
                     </div> 
@@ -46,7 +41,7 @@ function Notification() {
                     <div className="flex">
                     <div className="w-auto ">
                             <input className="checkbox-switch hidden" type="checkbox" id="setting4"/>
-                            <label className='switch-btn' for="setting4"></label>    
+                            <label className='switch-btn' htmlFor="setting4"></label>    
                         </div>                                 
                         <div className="subheading3-sm pl-4">Email me about new features and updates</div> 
                     </div> 
@@ -54,7 +49,7 @@ function Notification() {
                     <div className="flex">
                     <div className="w-auto">
                             <input className="checkbox-switch hidden" type="checkbox" id="setting5"/>
-                            <label className='switch-btn' for="setting5"></label>    
+                            <label className='switch-btn' htmlFor="setting5"></label>    
                         </div>                             
                         <div className="subheading3-sm pl-4">Email me about tips on using account</div> 
                     </div> 

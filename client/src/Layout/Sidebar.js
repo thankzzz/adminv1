@@ -3,7 +3,7 @@ import {Link} from 'react-router-dom'
 import {useDispatch} from 'react-redux'
 import {signout} from '../Actions/userAction'
 function Sidebar() {
-    const [sidebarCollapse,setSidebarCollapse] = useState(false)
+    const [sidebarCollapse,setSidebarCollapse] = useState(true)
     const collapse = sidebarCollapse?"sidebar-collapse":"sidebar-show"
     const handleSidebar = (e) =>{
         e.preventDefault()

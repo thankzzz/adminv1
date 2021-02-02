@@ -32,6 +32,7 @@ function Login() {
                     <span>Login</span>
                   </div>
                   <div className="login-body">
+                    <form>
                     <div className="form-control-wrap">
                       <div className="form-icon form-icon-left">
                         <i className="far fa-user"></i>
@@ -69,7 +70,7 @@ function Login() {
                       </a>
                       
                     </div>
-                   
+                    </form>
                   </div>
                 </div>
                 <div className="m-3">

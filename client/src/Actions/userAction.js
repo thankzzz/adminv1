@@ -59,20 +59,25 @@ const signup = (formik,notificationSystem) => async (dispatch) =>{
 
 const signin = (loginData) => async (dispatch) =>{
   dispatch({type:ACCOUNT_SIGNIN_REQUEST})
+  let getIp = await publicIp.v4()
+  let getLocation = await Axios.get(`https://geolocation-db.com/json/85249190-4601-11eb-9067-21b51bc8dee3/${getIp}`)
+  let locationInfo = getLocation.data
   try{
     let dataPost ={
       email : loginData.email,
       password:loginData.password,
       last_login: moment().format('YYYY/MM/DD h:mm:ss'),
-      last_ip: await publicIp.v4()  
-    }
+      last_ip: getIp,
+      last_country:locationInfo.country_name,
+      last_city:locationInfo.city
+    }  
     const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost)
     if(data.status === "success"){
-      console.log('success')
-      dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data})
       Cookie.set('userInfo',data.token)
+      dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data.token})
+      
     }else{
-      console.log('failed')
+     
       dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:data.message})
     }  
   }catch(err){
