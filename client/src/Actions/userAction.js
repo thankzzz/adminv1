@@ -1,6 +1,6 @@
 import Axios from "axios";
 import moment from 'moment'
-import publicIp from 'public-ip'
+// import publicIp from 'public-ip'
 import Cookie from 'js-cookie';
 import jwt_decode from "jwt-decode";
 
@@ -59,15 +59,16 @@ const signup = (formik,notificationSystem) => async (dispatch) =>{
 
 const signin = (loginData) => async (dispatch) =>{
   dispatch({type:ACCOUNT_SIGNIN_REQUEST})
-  let getIp = await publicIp.v4()
-  let getLocation = await Axios.get(`https://geolocation-db.com/json/85249190-4601-11eb-9067-21b51bc8dee3/${getIp}`)
+  // let getIp = await publicIp.v4()
+  let getLocation = await Axios.get(`https://geolocation-db.com/json/85249190-4601-11eb-9067-21b51bc8dee3/36.76.130.105`)
   let locationInfo = getLocation.data
+  console.log(locationInfo)
   try{
     let dataPost ={
       email : loginData.email,
       password:loginData.password,
       last_login: moment().format('YYYY/MM/DD h:mm:ss'),
-      last_ip: getIp,
+      last_ip: "36.76.130.105",
       last_country:locationInfo.country_name,
       last_city:locationInfo.city
     }  

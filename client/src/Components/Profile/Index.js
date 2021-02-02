@@ -5,22 +5,23 @@ import { Link, Route, useRouteMatch,Redirect,NavLink } from 'react-router-dom'
 import PersonalInformation from './PersonalInformation'
 import SecuritySetting from './SecuritySetting'
 import jwt_decode from 'jwt-decode'
-import Cookie from 'js-cookie'
+
 import Axios from 'axios'
 import moment from 'moment'
 import History from './history'
-
+import {useSelector} from 'react-redux'
 function ProfileConfig() {
     const { url, path } = useRouteMatch()
 
-    console.log(path)
+    const userState = useSelector(state=>state.userSignin)
+    const {userInfo} = userState
     const [userAgent, setUserAgent] = useState({
         last_login: '',
         last_ip: ''
     })
-
-    const token = Cookie.get('userInfo')
-    const decode = jwt_decode(token)
+    
+    
+    const decode = jwt_decode(userInfo)
     const getUserAgent = async () => {
         try{
             let { data } = await Axios.get(`http://localhost:8080/api/user/agent/${decode.id}`)
@@ -55,12 +56,13 @@ function ProfileConfig() {
                     <div className="aside-left">
                         <div className="aside-column-item ">
                             <div className="flex align-center">
-                                <div className="user-image-circle">
-                                    <img src={process.env.PUBLIC_URL + '/assets/img/logo/dummy-profile.png'} alt="user-profile"/>
+                                <div className="user-image-circle" >
+                                    <img src={process.env.PUBLIC_URL + '/assets/img/logo/dummy-profile.jpg  '} alt="user-profile"/>
                                 </div>
                                 <div className="flex flex-column p-2">
-                                    <span className="heading2-sm">Administrator</span>
-                                    <span className="subheading2-sm">Administrator@gmail.com</span>
+                                    <span className="heading2-sm font-bold">{decode.name}</span>
+                                    <span className="subheading2-sm ">{decode.email}</span>
+                                   
                                 </div>
                                 <div className="ml-auto pr-2 cursor-pointer text-2xl">
                                     <i className="fas fa-ellipsis-v fa-"></i>

@@ -13,8 +13,8 @@ function Sidebar() {
     return (
         <div className={`${collapse}`}>
         <div className={`leftside-container`}>
-            <div className="w-full h-full flex">
-                    <div className="sidebar-app">
+            <div className="w-full h-full flex ">
+                    <div className="sidebar-app ">
                     <div className ="flex align-center pt-2">
                         <span className="icon-bar" onClick={(e)=>handleSidebar(e)}><i className="fas fa-bars fa-2x"></i></span>  
                         <span className='navbar-logo'><img alt="admin-logo" src={process.env.PUBLIC_URL + '/assets/img/logo/logo.png'} /></span> 
@@ -34,6 +34,7 @@ function Sidebar() {
                                 <span className="menu-text"> Product</span>
                                     <i className="fas fa-chevron-left  menu-icon-rightside"></i>
                                 </a>
+                                    
                                     <ul className="submenu-container collapse" id="collapseOne" aria-labelledby="headingOne" data-parent="#accordion">
                                         <li>
                                             <a href="/#"className="submenu-item">

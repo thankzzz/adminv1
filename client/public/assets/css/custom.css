@@ -1,11 +1,9 @@
 * {
     box-sizing: border-box;
     outline: none;
-   
+   font-family: "Helvetica Neue", "Roboto", Arial, "Droid Sans", sans-serif;
   }
-  body{
-      background-color: #E7DEDE;
-  }
+
   .heading2{
       font-size:24px;
       font-style: normal;
@@ -121,8 +119,9 @@
         
     }
     .middleside{
+        position: relative;
         width:100%;
-        height:100%;
+       
         /* border:2px solid red; */
         display:flex;
         padding:0px;
@@ -130,7 +129,7 @@
     .leftcomponent{
         position: absolute;
         display:flex;
-        height:100%;
+        min-height:100%;
     }
     .rightcomponent{
         width:100%;
@@ -186,6 +185,7 @@
         transition: ease 0.3s;
         position: relative;
         margin-right:0;
+        
     }
     .sidebar-show .leftside-container{
         width:250px;
@@ -263,8 +263,9 @@
     }
     
     .vertical-menu li .menu-item .menu-icon{
+        width:30px;
         font-size:20px;
-        margin-right:10px;
+        margin-right: 10px;
         color:#dddddd;
     }
     .vertical-menu li .menu-item:hover .menu-icon{
@@ -317,13 +318,14 @@
     /* Content side */
         .content-side{
             width:100%;
-            height:100%;
+            
             padding:5px;
         }
         .content-container{
             height:100%;
             width:100%;
-       
+            border: 1px solid #DBDFEA;
+box-sizing: border-box;
             overflow:auto;
         }
         .content-aside{
@@ -349,16 +351,17 @@
             border-bottom:1px solid #DBDFEA;
         }
         .user-image-circle{
-            width:100px;
-            height:100px;
-            border-radius:50%;
-           
+            
+            border-radius:50%;          
             overflow: hidden;
+            background-color: red;
+
         }
         .user-image-circle img{
            width:100px;
            height:100px;
             object-fit: cover;
+            border-radius: 50%;
         }
         
         

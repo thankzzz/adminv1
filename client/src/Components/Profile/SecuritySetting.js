@@ -34,6 +34,7 @@ function SecuritySetting() {
   const { userInfo } = userState;
   const decode = jwt_decode(userInfo);
   const notificationSystem = useRef(null);
+  
   const [loading, setLoading] = useState(false);
   const getSetting = async () => {
     try {
@@ -79,7 +80,6 @@ function SecuritySetting() {
   const handleChangeSetting = async (e) => {
     setSettings({ ...settings, store_activity: !settings.store_activity });
     const updateActivity_setting = e.target.checked;
-    console.log(updateActivity_setting);
     try {
       let {
         data,
