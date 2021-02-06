@@ -4,8 +4,10 @@ const {user,user_login,user_history,user_setting} = require('../model/userModel'
 const bcrypt = require('bcrypt')
 const {getToken} = require('../util')
 const uuid = require('uuid');
-
+const path = require("path");
+const fs = require('fs')
 exports.signup = async (req,res)=>{
+
     const formdata = {
         id:uuid.v1(),
         username: req.body.username,
@@ -32,6 +34,8 @@ exports.signup = async (req,res)=>{
                                     phone:null,
                                     address:null,
                                     dateofbirth:null,
+                                    image_name:null,
+                                    image_file:null,
                                     fk_account_id:result.id
                                 })                                                                              
                     })
@@ -49,8 +53,8 @@ exports.signup = async (req,res)=>{
                             fk_account_id:formdata.id
                         })
                     })               
-                    .then(result=>{
-                        return  res.json({status: 'success', info:result })
+                    .then(()=>{
+                        return  res.json({status: 'success'})
                     })
                     .catch(err=>{
                         res.json({status:'failed',message:err.message})
@@ -144,15 +148,15 @@ exports.reset = async(req,res) =>{
                        
                            account.update({password:hash},{where:{id:id}})
                            .then(()=>{
-                              user_setting.findOne({where:{fk_account_id:id}})})
+                              return user_setting.findOne({where:{fk_account_id:id}})})
                             .then(result1=>{                              
-                                if(result1.store_activity){
+                              if(result1.store_activity){
                                     user_history.create({history:`You changed password`,fk_account_id:id}) 
                                 }  
-                                res.json({status:'success',info:result1})
-                            })
+                                return  res.json({status:'success',info:result1})
+                            })                           
                             .catch(err=>{
-                                res.json({status:'failed',info:err.message})
+                              return res.json({status:'failed',message:err.message})
                             })                                                  
                     }
                 })

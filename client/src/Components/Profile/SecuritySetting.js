@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-import NotificationSystem from "react-notification-system";
+import React, { useState, useEffect } from "react";
+import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
 import Axios from "axios";
 import { Formik, ErrorMessage } from "formik";
 import * as Yup from "yup";
@@ -8,7 +8,7 @@ import TextError from "../../Formik/textError";
 import moment from "moment";
 import { useSelector } from "react-redux";
 import jwt_decode from "jwt-decode";
-
+import {store} from 'react-notifications-component'
 const initialValues = {
   oldPassword: "",
   newPassword: "",
@@ -29,12 +29,9 @@ function SecuritySetting() {
   const [settings, setSettings] = useState({
     store_activity: false,
   });
-
   const userState = useSelector((state) => state.userSignin);
   const { userInfo } = userState;
   const decode = jwt_decode(userInfo);
-  const notificationSystem = useRef(null);
-  
   const [loading, setLoading] = useState(false);
   const getSetting = async () => {
     try {
@@ -50,6 +47,7 @@ function SecuritySetting() {
       console.log(err.message);
     }
   };
+
   const handleSubmitData = async (e, formik) => {
     e.preventDefault();
     setLoading(true);
@@ -57,26 +55,36 @@ function SecuritySetting() {
       oldPassword: formik.values.oldPassword,
       newPassword: formik.values.newPassword,
     };
-    let { data } = await Axios.put(
-      `http://localhost:8080/api/account/change/password/${decode.id}`,
-      updateData
-    );
-    if (data.status === "success") {
-      setLoading(false);
-      formik.resetForm();
-      notificationSystem.current.addNotification({
-        message: "Password has been changed successfully",
-        level: "success",
-      });
-    } else {
-      setLoading(false);
-      formik.resetForm();
-      notificationSystem.current.addNotification({
-        message: "Password cannot be changed at this time",
-        level: "error",
+    try{
+      let { data } = await Axios.put(
+        `http://localhost:8080/api/account/change/password/${decode.id}`,
+        updateData
+      );
+      if (data.status === "success") {
+        setLoading(false);
+        formik.resetForm();
+        store.addNotification({
+          ...successNotification,
+          message: `Password has been changed successfully` ,
+          
+        });
+      } else {
+        setLoading(false);
+        formik.resetForm();
+        store.addNotification({
+          ...errorNotification,
+          message: `Something wrong with the server ${data.message}` ,       
+        });
+      }
+    }catch(err){
+      store.addNotification({
+        ...errorNotification,
+        message: err.message ,       
       });
     }
+    
   };
+
   const handleChangeSetting = async (e) => {
     setSettings({ ...settings, store_activity: !settings.store_activity });
     const updateActivity_setting = e.target.checked;
@@ -88,20 +96,20 @@ function SecuritySetting() {
         { store_activity: updateActivity_setting }
       );
       if (data.status === "success") {
-        notificationSystem.current.addNotification({
-          message: "Settings has been changed successfully",
-          level: "success",
-        });
+        store.addNotification({
+          ...successNotification,
+          message:"Setting has been changed successfully",          
+        })
       } else {
-        notificationSystem.current.addNotification({
-          message: `Something wrong with the server ${data.message}`,
-          level: "error",
-        });
+      store.addNotification({
+        ...errorNotification,
+        message: `Something wrong with the server ${data.message}`,       
+      });
       }
     } catch (err) {
-      notificationSystem.current.addNotification({
-        message: `Error ! ${err.message}`,
-        level: "error",
+      store.addNotification({
+        errorNotification,
+        message: err.message  ,
       });
     }
   };
@@ -115,7 +123,7 @@ function SecuritySetting() {
   const lastChangePassword = moment(decode.updatedAt).format("DD MMMM YYYY");
   return (
     <React.Fragment>
-      <NotificationSystem ref={notificationSystem} />
+     
 
       <div className="flex flex-column pd-top">
         <div className="heading2 pb-2">Security Setting</div>

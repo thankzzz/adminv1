@@ -5,7 +5,8 @@ import { ForwardRoute,BackwardRoute } from './PrivateRoute';
 import Register from './Components/Register';
 import {useSelector} from 'react-redux'
 import Apps from './Components/Apps';
-
+import ReactNotification from 'react-notifications-component'
+import 'react-notifications-component/dist/theme.css'
 function App() {
   const userSignin = useSelector(state=>state.userSignin)
   const {userInfo} = userSignin
@@ -18,6 +19,7 @@ function App() {
 }
   return (
     <div className="App"> 
+    <ReactNotification/>
     <Router>      
             <Switch>
             <Route exact path="/" > <Redirect to="/apps"/></Route>   

@@ -1,11 +1,12 @@
-import React,{useRef} from "react";
+import React,{useState} from "react";
 import { Formik, ErrorMessage } from "formik";
-import {useDispatch,useSelector} from 'react-redux'
+import Axios from "axios"
 import * as Yup from "yup";
 import FormikControl from "../Formik/formikControl";
 import TextError from '../Formik/textError'
-import {signup} from '../Actions/userAction'
-import NotificationSystem from 'react-notification-system';
+import {errorNotification,successNotification} from '../UI/Toast/NotificationSetting'
+import {store} from 'react-notifications-component'
+
 
 const initialValues = {
   username:'',
@@ -24,13 +25,51 @@ const validationSchema = Yup.object({
   ).required("Required"),
 });
 function Register() {
-   const userSignup = useSelector(state=>state.userSignup)
-   const notificationSystem = useRef(null)
-   const {loading} = userSignup
-   const dispatch = useDispatch()
-   const handleSignup = (e,formik) =>{
+  
+  
+   const [loading,setLoading] = useState(false)
+   
+   const handleSignup = async (e,formik) =>{
       e.preventDefault()
-      dispatch(signup(formik,notificationSystem.current))
+      setLoading(true)
+      if(formik.values.password !== formik.values.confirmPassword){
+        store.addNotification({
+          errorNotification,
+          message:"Password and confirm password does not match"
+        })
+      }else{  
+        try{
+          let dataPost = {
+            username:formik.values.username,
+            email:formik.values.email,
+            password:formik.values.password
+          }
+          const {data} = await Axios.post('http://localhost:8080/api/account/create',dataPost)
+          if(data.status === "success"){
+            formik.resetForm()
+            store.addNotification({
+                ...successNotification,
+                message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account'
+              })
+              setLoading(false)
+          }else{
+              store.addNotification({
+                ...errorNotification,
+                message:data.message
+              })
+              setLoading(false)
+            formik.resetForm()
+          }
+          
+        }catch(err){
+            store.addNotification({
+              ...errorNotification,
+              message:err.message
+            })
+            setLoading(false)
+          formik.resetForm()
+        }
+      }
    }
   return (
     <Formik initialValues={initialValues} validationSchema={validationSchema}>
@@ -38,7 +77,7 @@ function Register() {
         return (
           <div className="wrapper">
             <div className="login-container">
-              <NotificationSystem ref={notificationSystem}/>
+             
               <div className="login-wrapper">
                 <div className="login-header">
                   {/* <img className="mb-2" alt="icon-company" src={process.env.PUBLIC_URL + `assets/img/Logo/hansonlogoc.png`} style={{width:'140px',height:'100px'}}/> */}

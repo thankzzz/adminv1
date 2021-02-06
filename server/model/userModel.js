@@ -16,9 +16,18 @@ const user = db.define('tb_user_info',{
         type:Sequelize.STRING(50),
         allowNull:true
     },
+    
     phone:{
         type:Sequelize.STRING,
         allowNull: true
+    },
+    image_file:{
+        type:Sequelize.BLOB,
+        allowNull:true
+    },
+    image_name:{
+        type:Sequelize.STRING,
+        allowNull:true
     },
     dateofbirth:{
         type:Sequelize.DATE,

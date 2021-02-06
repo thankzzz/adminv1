@@ -1,42 +1,29 @@
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, {useState} from "react";
 import Axios from "axios";
-import moment from "moment";
-import NotificationSystem from 'react-notification-system';
-import {useSelector} from 'react-redux'
+import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
+import {store} from 'react-notifications-component'
+import {useDispatch,useSelector} from 'react-redux'
 import jwt_decode from 'jwt-decode'
-
+import {getInfoUser} from '../../Actions/userAction'
 function PersonalInformation() {
-    const [userData, setUserInfo] = useState({
-        fullname: "",
-        address: "",
-        phone: "",
-        dateofbirth: "",
-    });  
-    const userState = useSelector(state=>state.userSignin)
-    const {userInfo} = userState
+    const dispatch = useDispatch()
+    const userState = useSelector(state=>state.userInfo)
+    const userLogin = useSelector(state=>state.userSignin)
+    const {userProfile} = userState
+    const {userInfo} = userLogin
     const decode = jwt_decode(userInfo)
-    const notificationSystem = useRef(null)
+
     const [editInfo, setEditInfo] = useState({
         fullname: "",
         address: "",
         phone: "",
-        dateofbirth: "",
+        dateofbirth: ""
     })
-    const isDataChanged =  userData.fullname === editInfo.fullname &&  userData.address === editInfo.address && userData.phone === editInfo.phone && userData.dateofbirth === editInfo.dateofbirth? true : false
-    const getDataUser = useCallback(async () => {
-        let { data } = await Axios(
-            `http://localhost:8080/api/user/data/${decode.id}`
-        );
-        setUserInfo({
-            ...userData,
-            fullname: data.info.fullname,
-            address: data.info.address,
-            phone: data.info.phone,
-            dateofbirth: moment(data.info.dateofbirth).format("YYYY-MM-DD"),
-        });
-    }, []);// eslint-disable-line react-hooks/exhaustive-deps
+  
+    const isDataChanged =  userProfile.fullname === editInfo.fullname &&  userProfile.address === editInfo.address && userProfile.phone === editInfo.phone && userProfile.dateofbirth === editInfo.dateofbirth? true : false
+    
     const handleEditInfo = () => {
-        setEditInfo({ ...editInfo, fullname: userData.fullname, address: userData.address, phone: userData.phone, dateofbirth: userData.dateofbirth })
+        setEditInfo({ ...editInfo, fullname: userProfile.fullname, address: userProfile.address, phone: userProfile.phone, dateofbirth: userProfile.dateofbirth })
     }
     const handleChangeEditInfo = (e) => {
         e.preventDefault()
@@ -52,26 +39,25 @@ function PersonalInformation() {
         }
         let { data } = await Axios.put(`http://localhost:8080/api/user/update/${decode.id}`, updateData)
         if (data.status === "success") {
-            getDataUser()
-            notificationSystem.current.addNotification({
-                message: 'Information has been updated successfully ',
-                level: 'success'
-            })
+            dispatch(getInfoUser())
+            store.addNotification({
+                ...successNotification,
+                message: 'Information has been updated successfully'  ,
+              });
         } else {
-            notificationSystem.current.addNotification({
-                message: data.message,
-                level: 'error'
-            })
+            store.addNotification({
+                ...errorNotification,
+                message: data.message  ,
+              });
         }
     }
-    useEffect(() => {
-        getDataUser();
-    }, []);// eslint-disable-line react-hooks/exhaustive-deps
+    
     return (
         <React.Fragment>
-            <NotificationSystem ref={notificationSystem} />
+          
            
                 <div className="flex flex-column pd-top">
+               
                     <div className="heading2 pb-2">Personal Information</div>
                     <div className="subheading3 pb-4">
                         Basic info, like your name and address, that you use on your website
@@ -81,7 +67,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Full name</span>
                             <span className="subheading3 font-medium py-2">
-                                {userData.fullname}
+                                {userProfile.fullname}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -115,7 +101,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Address</span>
                             <span className="subheading3 font-medium py-2">
-                                {userData.address}
+                                {userProfile.address}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -126,7 +112,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Phone Number</span>
                             <span className="subheading3 font-medium py-2">
-                                {userData.phone}
+                                {userProfile.phone}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -137,7 +123,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Date Of Birth</span>
                             <span className="subheading3 font-medium py-2">
-                                {userData.dateofbirth}
+                                {userProfile.dateofbirth}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -185,13 +171,7 @@ function PersonalInformation() {
                                             <input type="number" className="form-control" id="phone" placeholder="Input phone" value={editInfo.phone} onChange={(e) => handleChangeEditInfo(e)} />
                                         </div>
                                     </div>
-                                    <div className="flex">
-                                        <div className="w-auto ">
-                                            <input className="checkbox-switch hidden" type="checkbox" id="settingname" />
-                                            <label className='switch-btn' htmlFor="settingname"></label>
-                                        </div>
-                                        <div className="subheading3-sm pl-2" style={{ fontWeight: '500' }}>Use fullname to display</div>
-                                    </div>
+                                    
                                 </div>
                                 <div className="col-sm-12 col-lg-6">
                                     <div className="form-group">

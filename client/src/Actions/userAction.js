@@ -1,76 +1,33 @@
 import Axios from "axios";
 import moment from 'moment'
-// import publicIp from 'public-ip'
+
 import Cookie from 'js-cookie';
 import jwt_decode from "jwt-decode";
-
+import { Redirect } from "react-router-dom";
 import {
   ACCOUNT_SIGNIN_REQUEST, 
   ACCOUNT_SIGNIN_SUCCESS,
-  ACCOUNT_SIGNIN_FAIL, 
-  ACCOUNT_SIGNUP_REQUEST,
-  ACCOUNT_SIGNUP_SUCCESS, 
-  ACCOUNT_SIGNUP_FAIL, 
+  ACCOUNT_SIGNIN_FAIL,  
   ACCOUNT_SIGNOUT, 
   USERINFO_FETCH_REQUEST,
   USERINFO_FETCH_SUCCESS,
   USERINFO_FETCH_FAIL
 } from "../Type/usertype";
 import axios from "axios";
-const signup = (formik,notificationSystem) => async (dispatch) =>{
-  dispatch({type:ACCOUNT_SIGNUP_REQUEST})
-  if(formik.values.password !== formik.values.confirmPassword){
-    dispatch({type:ACCOUNT_SIGNUP_FAIL,payload:'Password and confirm password does not match'})
-  }else{  
-    try{
-      let dataPost = {
-        username:formik.values.username,
-        email:formik.values.email,
-        password:formik.values.password
-      }
-      const {data} = await Axios.post('http://localhost:8080/api/account/create',dataPost)
-      if(data.status === "success"){
-        formik.resetForm()
-        dispatch({type:ACCOUNT_SIGNUP_SUCCESS,payload:data})
-          notificationSystem.addNotification({
-          message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account',
-          level:'success'
-        })
-      }else{
-        dispatch({type:ACCOUNT_SIGNUP_FAIL,payload:data.message})
-          notificationSystem.addNotification({
-          message:data.message,
-          level:'error'
-      })
-        formik.resetForm()
-      }
-      
-    }catch(err){
-      dispatch({type:ACCOUNT_SIGNUP_FAIL,payload:err.message})
-        notificationSystem.addNotification({
-        message:err.message,
-        level:'error'
-      })
-      console.log(formik)
-      formik.resetForm()
-    }
-  }
-}
+
 
 const signin = (loginData) => async (dispatch) =>{
   dispatch({type:ACCOUNT_SIGNIN_REQUEST})
-  // let getIp = await publicIp.v4()
-  let getLocation = await Axios.get(`https://geolocation-db.com/json/85249190-4601-11eb-9067-21b51bc8dee3/36.76.130.105`)
-  let locationInfo = getLocation.data
-  console.log(locationInfo)
+  let getLocation = await Axios.get(`https://ipapi.co/json/`)
+  let dataLocation = getLocation.data
   try{
     let dataPost ={
       email : loginData.email,
       password:loginData.password,
       last_login: moment().format('YYYY/MM/DD h:mm:ss'),
-      last_ip: "36.76.130.105",
-      last_country:locationInfo.country_name,
-      last_city:locationInfo.city
+      last_ip: dataLocation.ip,
+      last_country:dataLocation.country_name,
+      last_city:dataLocation.city
     }  
     const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost)
     if(data.status === "success"){
@@ -89,25 +46,33 @@ const signout = () => async(dispatch)=>{
   Cookie.remove("userInfo");
   dispatch({ type: ACCOUNT_SIGNOUT })
 }
-const getInfoUser = () => async(dispatch) =>{
+const getInfoUser = () => async(dispatch,getState) =>{
   dispatch({type:USERINFO_FETCH_REQUEST})
+ 
+  const {userSignin:{userInfo}} = getState()
+  console.log(userInfo)
   try{
-    let token = Cookie.getJSON('userInfo')
-    let decode = await jwt_decode(token)
-    
-    var {data} = await axios.get(`http://localhost:8080/api/user/data/${decode.id}`)
-    let tmpData = {
-      fullname:data.info.fullname,
-      address:data.info.address,
-      phone:data.info.phone,
-      dateofbirth: moment(data.info.dateofbirth).format("DD/MM/YYYY HH:MM:SS")
+    let decode = await jwt_decode(userInfo)
+    var {data} = await axios.get(`http://localhost:8080/api/user/${decode.id}`,{
+      headers:{
+          Authorization:'Bearer'+ userInfo
+      }
+  })
+    // let tmpData = {
+    //   fullname:data.info.fullname || null, 
+    //   address:data.info.address || null,
+    //   phone:data.info.phone || null,
+    //   image_file:data.info.image_file || null,
+    //   dateofbirth: moment(data.info.dateofbirth).format("DD/MM/YYYY")
       
-    }
-    
-    dispatch({type:USERINFO_FETCH_SUCCESS,payload:tmpData})
+    // }
+    // console.log(tmpData)
+    dispatch({type:USERINFO_FETCH_SUCCESS,payload:data.info})
   }catch(err){
-    dispatch({type:USERINFO_FETCH_FAIL,payload:'terjadi keslahan'})
+    Cookie.remove("userInfo");
+    window.location.href = "http://localhost:3000/login";
+    dispatch({type:USERINFO_FETCH_FAIL,payload:err.message})
   }
 }
-export {signup,signin,signout,getInfoUser}
+export {signin,signout,getInfoUser}
 

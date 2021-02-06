@@ -22,7 +22,7 @@ input[type=number] {
     border-color: #0e49b5;
 }
 .checkbox-switch:checked + .switch-btn{
-    background-color: #2B4B9B;
+    background-color: #21283A;
 
 }
 
@@ -51,11 +51,12 @@ input[type=number] {
 }
 
 .btn-primary{
-    background-color:#2B4B9B;
+    background-color:#21283A;
     color:#fff;
     outline:hidden;
     border: hidden;
 }
+
 @media (min-width: 1199.98px) { 
     .switch-btn{
         width:40px;

@@ -1,26 +1,23 @@
 import React,{useState} from "react";
 import {useSelector,useDispatch} from 'react-redux'
 import {signin} from '../Actions/userAction'
-import publicIp from 'public-ip'
-import moment from 'moment'
+
 function Login() {
   const usersignin = useSelector(state=>state.userSignin)
   const dispatch = useDispatch()
   const {error,loading} = usersignin
   const [dataUser,setDataUser] = useState({
     email:'',
-    password:'',
-    last_login:moment(),
-    last_ip: publicIp.v4()
+    password:'' 
   })
   const handleChangeForm = (e) =>{
     e.preventDefault()
     setDataUser({...dataUser,[e.target.name]:e.target.value})
   }
-  const handleLogin = (e)=>{
+  const handleLogin = async (e)=>{
     e.preventDefault()
-      dispatch(signin(dataUser))
-    
+    dispatch(signin(dataUser))
+    setDataUser({...dataUser,email:'',password:''})
   }
   return (         
             <div className="wrapper">
@@ -44,6 +41,7 @@ function Login() {
                         className="form-control mb-6 input-login"
                         autoComplete="off"
                         onChange={(e)=>handleChangeForm(e)}
+                        value={dataUser.email}
                       />
                     </div>
                   
@@ -58,6 +56,7 @@ function Login() {
                         className="form-control mb-6 input-login"
                         autoComplete="off"
                         onChange={(e)=>handleChangeForm(e)}
+                        value={dataUser.password}
                       />
                     </div>                   
                     <div className="flex align-center justify-center">
