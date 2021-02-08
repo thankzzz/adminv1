@@ -2,20 +2,25 @@ import React,{useEffect} from 'react'
 import Header  from '../Layout/Header'
 import Sidebar from '../Layout/Sidebar'
 import Content from './Content'
-import Axios from 'axios'
+
+
+
 
 
 function Apps() {
+  
+   
     useEffect(() => {     
         const storeHistoryUser = () => {
-            Axios.put('http://localhost:8080/api/user/agent/login-session/update/:id')
+           
+               
           }       
           window.addEventListener('beforeunload', storeHistoryUser);
         
           return () => {
             window.removeEventListener('beforeunload', storeHistoryUser);
           }
-      }, [])
+      }, [])// eslint-disable-line react-hooks/exhaustive-deps
     
     return (
         <div className="apps">

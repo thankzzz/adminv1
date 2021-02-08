@@ -38,37 +38,28 @@ function Register() {
           message:"Password and confirm password does not match"
         })
       }else{  
-        try{
-          let dataPost = {
-            username:formik.values.username,
-            email:formik.values.email,
-            password:formik.values.password
-          }
-          const {data} = await Axios.post('http://localhost:8080/api/account/create',dataPost)
-          if(data.status === "success"){
-            formik.resetForm()
+        let dataPost = {
+          username:formik.values.username,
+          email:formik.values.email,
+          password:formik.values.password
+        }
+        Axios.post('http://localhost:8080/api/account/create',dataPost).then(()=>{
+          formik.resetForm()
             store.addNotification({
                 ...successNotification,
                 message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account'
               })
               setLoading(false)
-          }else{
-              store.addNotification({
-                ...errorNotification,
-                message:data.message
-              })
-              setLoading(false)
-            formik.resetForm()
-          }
-          
-        }catch(err){
-            store.addNotification({
-              ...errorNotification,
-              message:err.message
-            })
-            setLoading(false)
-          formik.resetForm()
-        }
+        })
+        .catch(err=>{
+          store.addNotification({
+            ...errorNotification,
+            message:err.message
+          })
+          setLoading(false)
+        formik.resetForm()
+        })
+        
       }
    }
   return (

@@ -3,27 +3,30 @@ import Axios from "axios";
 import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
 import {store} from 'react-notifications-component'
 import {useDispatch,useSelector} from 'react-redux'
-import jwt_decode from 'jwt-decode'
-import {getInfoUser} from '../../Actions/userAction'
+import {getInfoUser,forceSignout} from '../../Actions/userAction'
+import moment from 'moment'
+
+
+
 function PersonalInformation() {
     const dispatch = useDispatch()
     const userState = useSelector(state=>state.userInfo)
     const userLogin = useSelector(state=>state.userSignin)
     const {userProfile} = userState
     const {userInfo} = userLogin
-    const decode = jwt_decode(userInfo)
-
+   
+    
     const [editInfo, setEditInfo] = useState({
         fullname: "",
         address: "",
         phone: "",
         dateofbirth: ""
-    })
-  
+    })  
     const isDataChanged =  userProfile.fullname === editInfo.fullname &&  userProfile.address === editInfo.address && userProfile.phone === editInfo.phone && userProfile.dateofbirth === editInfo.dateofbirth? true : false
     
     const handleEditInfo = () => {
-        setEditInfo({ ...editInfo, fullname: userProfile.fullname, address: userProfile.address, phone: userProfile.phone, dateofbirth: userProfile.dateofbirth })
+       
+        setEditInfo({ ...editInfo, fullname: userProfile.fullname, address: userProfile.address, phone: userProfile.phone,dateofbirth:moment(userProfile.dateofbirth).format("YYYY-MM-DD")})
     }
     const handleChangeEditInfo = (e) => {
         e.preventDefault()
@@ -37,25 +40,31 @@ function PersonalInformation() {
             phone: editInfo.phone,
             dateofbirth: editInfo.dateofbirth
         }
-        let { data } = await Axios.put(`http://localhost:8080/api/user/update/${decode.id}`, updateData)
-        if (data.status === "success") {
-            dispatch(getInfoUser())
-            store.addNotification({
-                ...successNotification,
-                message: 'Information has been updated successfully'  ,
-              });
-        } else {
-            store.addNotification({
-                ...errorNotification,
-                message: data.message  ,
-              });
-        }
+        Axios.put(`http://localhost:8080/api/user/update/${userInfo.id}`,updateData,{
+                headers:{
+                    Authorization:'Bearer'+userInfo.token
+                }
+            }).then(()=>{
+                dispatch(getInfoUser())
+                store.addNotification({
+                    ...successNotification,
+                    message: 'Information has been updated successfully'  ,
+                });
+            }).catch(err=>{  
+                if(err.respose.status === 401 || err.response.status === 403){
+                    dispatch(forceSignout())                   
+                }else{
+                    store.addNotification({
+                        ...errorNotification,
+                        message: err.message  ,
+                    });
+                }                                         
+            })
+        
     }
     
     return (
-        <React.Fragment>
-          
-           
+        <React.Fragment>                   
                 <div className="flex flex-column pd-top">
                
                     <div className="heading2 pb-2">Personal Information</div>
@@ -79,7 +88,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Display name</span>
                             <span className="subheading3 font-medium py-2">
-                                {decode.name}
+                                {userInfo.name}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -90,7 +99,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Email</span>
                             <span className="subheading3 font-medium py-2">
-                                {decode.email}
+                                {userInfo.email}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -123,7 +132,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Date Of Birth</span>
                             <span className="subheading3 font-medium py-2">
-                                {userProfile.dateofbirth}
+                                {moment(userProfile.dateofbirth).format("DD MMMM YYYY")}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -162,7 +171,7 @@ function PersonalInformation() {
                                     <div className="form-group">
                                         <label className="form-label" htmlFor="displayname">Display Name</label>
                                         <div className="form-control-wrap">
-                                            <input type="text" className="form-control" id="displayname" placeholder="Input Display Name" disabled value={decode.name} />
+                                            <input type="text" className="form-control" id="displayname" placeholder="Input Display Name" disabled value={userInfo.name} />
                                         </div>
                                     </div>
                                     <div className="form-group">

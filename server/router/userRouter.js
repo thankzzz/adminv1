@@ -8,7 +8,7 @@ const {isAuth} = require('../util')
 Router.get('/:id',isAuth,user.getData)
 
 //Update user information
-Router.put('/update/:id',user.update)
+Router.put('/update/:id',isAuth,user.update)
 
 Router.put('/upload/:id',user.uploadImage)
 
@@ -19,7 +19,7 @@ Router.put('/agent/login-session/update/:id',user.updateAgent_login_session)
 
 Router.get('/history/:id',user.getHistory)
 
-Router.post('/history/create/:id',user.createHistory)
+Router.post('/history/create',user.createHistory)
 
 Router.get('/setting/:id',user.getSetting)
 

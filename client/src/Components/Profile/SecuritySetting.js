@@ -7,7 +7,7 @@ import FormikControl from "../../Formik/formikControl";
 import TextError from "../../Formik/textError";
 import moment from "moment";
 import { useSelector } from "react-redux";
-import jwt_decode from "jwt-decode";
+
 import {store} from 'react-notifications-component'
 const initialValues = {
   oldPassword: "",
@@ -31,12 +31,12 @@ function SecuritySetting() {
   });
   const userState = useSelector((state) => state.userSignin);
   const { userInfo } = userState;
-  const decode = jwt_decode(userInfo);
+  
   const [loading, setLoading] = useState(false);
   const getSetting = async () => {
     try {
       let { data } = await Axios.get(
-        `http://localhost:8080/api/user/setting/${decode.id}`
+        `http://localhost:8080/api/user/setting/${userInfo.id}`
       );
       if (data.status === "success") {
         setSettings({ ...settings, store_activity: data.info.store_activity });
@@ -48,79 +48,60 @@ function SecuritySetting() {
     }
   };
 
-  const handleSubmitData = async (e, formik) => {
+  const handleSubmitData = (e, formik) => {
     e.preventDefault();
     setLoading(true);
     let updateData = {
       oldPassword: formik.values.oldPassword,
       newPassword: formik.values.newPassword,
     };
-    try{
-      let { data } = await Axios.put(
-        `http://localhost:8080/api/account/change/password/${decode.id}`,
-        updateData
-      );
-      if (data.status === "success") {
+    Axios.put(`http://localhost:8080/api/account/change/password/${userInfo.id}`,
+      updateData,{
+        headers:{ Authorization:'Bearer'+ userInfo}
+      })
+      .then(()=>{
         setLoading(false);
-        formik.resetForm();
+        formik.resetForm();     
         store.addNotification({
           ...successNotification,
-          message: `Password has been changed successfully` ,
-          
-        });
-      } else {
-        setLoading(false);
-        formik.resetForm();
+           message: `Password has been changed successfully` 
+        })
+      })
+      .catch(err=>{
         store.addNotification({
           ...errorNotification,
-          message: `Something wrong with the server ${data.message}` ,       
+          message: err.message ,       
         });
-      }
-    }catch(err){
-      store.addNotification({
-        ...errorNotification,
-        message: err.message ,       
-      });
-    }
-    
+      }) 
   };
 
-  const handleChangeSetting = async (e) => {
+  const handleChangeSetting = (e) => {
     setSettings({ ...settings, store_activity: !settings.store_activity });
     const updateActivity_setting = e.target.checked;
-    try {
-      let {
-        data,
-      } = await Axios.put(
-        `http://localhost:8080/api/user/setting/update/${decode.id}`,
-        { store_activity: updateActivity_setting }
-      );
-      if (data.status === "success") {
-        store.addNotification({
-          ...successNotification,
-          message:"Setting has been changed successfully",          
-        })
-      } else {
+    Axios.put(
+      `http://localhost:8080/api/user/setting/update/${userInfo.id}`,
+      { store_activity: updateActivity_setting }
+    ).then(()=>{
       store.addNotification({
-        ...errorNotification,
-        message: `Something wrong with the server ${data.message}`,       
-      });
-      }
-    } catch (err) {
+        ...successNotification,
+        message:"Setting has been changed successfully",          
+      })
+    }).catch(err=>{
       store.addNotification({
         errorNotification,
         message: err.message  ,
       });
-    }
+    })
   };
-  const handleCancel = (e, formik) => {
+
+const handleCancel = (e, formik) => {
     e.preventDefault();
     formik.resetForm();
   };
   useEffect(() => {
     getSetting();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
-  const lastChangePassword = moment(decode.updatedAt).format("DD MMMM YYYY");
+  const lastChangePassword = moment(userInfo.updatedAt).format("DD MMMM YYYY");
   return (
     <React.Fragment>
      

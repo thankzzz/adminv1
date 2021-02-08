@@ -4,7 +4,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const db = require('./database/database')
 const cookieParser = require('cookie-parser')
-const {account,user} = require('./router/router')
+const {account,user,token} = require('./router/router')
 db.sync({force:false});
 app.use(cookieParser())
 app.use(bodyParser.json())
@@ -19,6 +19,7 @@ const corsOptions = {
 app.use(cors());
 app.use('/api/account',cors(corsOptions),account)
 app.use('/api/user',cors(corsOptions),user)
+app.use('/api/token',cors(corsOptions),token)
 app.listen('8080',()=>{
     console.log('koneksi ke server berhasil')
 })

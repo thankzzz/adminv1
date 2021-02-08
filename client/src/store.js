@@ -7,7 +7,7 @@ import{
 } from './Reducer/userReducer'
 
 
-const userInfo = Cookie.getJSON('userInfo') || null
+const userInfo = Cookie.getJSON('userInfo') 
 
 const initialState = {
     userSignin :{ userInfo }

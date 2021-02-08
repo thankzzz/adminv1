@@ -39,21 +39,16 @@ const Storage = multer.diskStorage({
 
 exports.getData = async(req,res)=>{
     const id  = req.params.id
-    
     try{
         let data = await user.findOne({where:{fk_account_id:id}})
-        
         if(data){
-            res.json({status:'success',info:data})
+            res.status(200).json({status:'success',info:data})
         }else{
-            console.log(id)
-            res.json({status:'failed',message:'Tidak ada data'})
+            res.status(404).json({status:'failed',message:'Tidak ada data'})
         }
-    }catch(err){
-        
-       
+    }catch(err){ 
         console.log(err.message)
-        res.json({status:'failed',message:'Terjadi kesalahan pada server'})
+        res.status(404).json({status:'failed',message:'Terjadi kesalahan pada server'})
     }
 }
 
@@ -66,11 +61,19 @@ exports.update = async(req,res)=>{
         address : req.body.address,
         dateofbirth : req.body.dateofbirth
     }
-    user.update(updateData,{where:{fk_account_id:id}}).then(()=>{
-        res.json({status:'success'})
-    }).catch(err=>{
-        res.json({status:'failed'})
-    })  
+    user.findOne({where:{fk_account_id:id}})
+    .then(result=>{
+        if(!result){  
+            res.status(404).json()
+        }else{          
+            user.update(updateData,{where:{fk_account_id:id}})
+            res.status(200).json()
+        }       
+    })
+    .catch(err=>{
+        res.status(404).json({message:err.message})
+    })
+   
 }
 
 exports.getAgent = async(req,res)=>{
@@ -90,7 +93,7 @@ exports.getAgent = async(req,res)=>{
 }
 exports.updateAgent_login_session = async(req,res)=>{
     const id = req.params.id
-    const lastLogin = moment().format("YYYYY/MM/DD HH:MM:SS")
+    const lastLogin = req.body.lastLogin
     user_login.update({last_login:lastLogin},{where:{fk_account_id:id}}).then(()=>{
         console.log('tidak dapat menyimpan login session user')
     })
@@ -164,7 +167,7 @@ exports.uploadImage = async(req,res)=>{
 
 
 exports.createHistory = async(req,res) =>{
-    const id = req.params.id
+    const id = req.body.id
     const historyMsg = req.body.history
     user_setting.findOne({where:{fk_account_id:id}}).then(result=>{
         if(result.store_activity){

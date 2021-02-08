@@ -4,7 +4,6 @@ import Notification from './Notification'
 import { Link, Route, useRouteMatch,Redirect,NavLink } from 'react-router-dom'
 import PersonalInformation from './PersonalInformation'
 import SecuritySetting from './SecuritySetting'
-import jwt_decode from 'jwt-decode'
 import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
 import {store} from 'react-notifications-component'
 import Axios from 'axios'
@@ -20,6 +19,7 @@ function ProfileConfig() {
     const userState = useSelector(state=>state.userInfo)
     const userLogin= useSelector(state=>state.userSignin)
     const  {userInfo} = userLogin
+    
     const {userProfile} = userState
     const dispatch = useDispatch()
     const [userAgent, setUserAgent] = useState({
@@ -29,82 +29,68 @@ function ProfileConfig() {
     
     const inputFile = useRef(null)
     
-    // let profile_picture  = 'data:image/png;base64,' + new Buffer(userInfo.image_file, 'binary').toString('base64')
-       
-    const decode = jwt_decode(userInfo)
+  
     const getDataUser = useCallback(async () => {
         dispatch(getInfoUser())
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
     
-    const getUserAgent = async () => {
-        try{
-            let { data } = await Axios.get(`http://localhost:8080/api/user/agent/${decode.id}`,{
-                headers:{
-                    Authorization:'Bearer' + userInfo.token
-                }
-            })
-         
-            if(!data.info){
-                console.log('disconect')
-            }else{
-                let checkOnline = data.info.online ? <span style={{ color: '#00af91', fontWeight: 'bold' }}>Online <i className="fas fa-circle"></i> </span> : moment(data.info.last_login).format("DD MMMM YYYY HH:MM:SS")
-                setUserAgent({ ...userAgent, last_login: checkOnline, last_ip: data.info.last_ip })
-                
-            }   
-        }catch(err){
-            console.log(err.message)
+        const getUserAgent = async () => {
+            try{
+                let { data } = await Axios.get(`http://localhost:8080/api/user/agent/${userInfo.id}`,{
+                    headers:{
+                        Authorization:'Bearer' + userInfo.token
+                    }
+                })
+            
+                if(!data.info){
+                    console.log('disconect')
+                }else{
+                    let checkOnline = data.info.online ? <span style={{ color: '#00af91', fontWeight: 'bold' }}>Online <i className="fas fa-circle"></i> </span> : moment(data.info.last_login).format("DD MMMM YYYY HH:MM:SS")
+                    setUserAgent({ ...userAgent, last_login: checkOnline, last_ip: data.info.last_ip })
+                    
+                }   
+            }catch(err){
+                console.log(err.message)
+            }
+            
         }
-        
-    }
     const toggleDropdown = (e) =>{
         e.preventDefault()       
         setDropMenuProfile(!dropMenuProfile)
     }
     
-    const handleChangeImage = async (e) =>{
-        
+    const handleChangeImage = async (e) =>{   
         let target = e.target.files[0]
-        if(target.size >= 1024 * 1024){
+        if(!target){
+            return;
+        }else if(target.size >= 1024 * 1024){
             store.addNotification({
                 ...errorNotification,
                 message:'Gambar tidak boleh melebihi 2 mb'
             })
-        }else if(!target){
-            return;
         }else{       
         let formData = new FormData()
         formData.append("user_image",target)
-        try{
-            let {data} = await Axios({
-                method:"PUT",
-                url:`http://localhost:8080/api/user/upload/${decode.id}`,
-                data:formData,
-                headers: {'Content-Type': 'multipart/form-data' }
+        Axios.put(`http://localhost:8080/api/user/upload/${userInfo.id}`,formData,{headers: {'Content-Type': 'multipart/form-data' ,Authorization:'Bearer'+userInfo.token}})
+        .then(()=>{
+            store.addNotification({
+                ...successNotification,
+                message:'Profile image berhasil diubah'
             })
-            if(data.status === "success"){
-                    store.addNotification({
-                        ...successNotification,
-                        message:'Profile image berhasil diubah'
-                    })
-                    getDataUser()
-                  
-            }else{
-                store.addNotification({
-                    ...errorNotification,
-                    message:'Profile image berhasil diubah'
-                })
-            }
-        }catch(err){
+            getDataUser()
+        }).catch(err=>{
+            
             store.addNotification({
                 ...errorNotification,
-                message:err.message
+                message:'err.message'
             })
-        }
+        })
+        
     
     }
 
     }
-    // const profileImage = userProfile.image_file?'data:image/png;base64,' + new Buffer(userProfile.image_file, 'binary').toString('base64'):process.env.PUBLIC_URL + '/assets/img/gallery/dummy-profile1.png'
+    const profileImage = userProfile.image_file?'data:image/png;base64,' + new Buffer(userProfile.image_file, 'binary').toString('base64'):process.env.PUBLIC_URL + '/assets/img/gallery/dummy-profile1.png'
     useEffect(() => {
         getUserAgent()
         getDataUser()
@@ -126,11 +112,11 @@ function ProfileConfig() {
                         <div className="aside-column-item ">
                             <div className="flex align-center">
                                 <div className="user-image-circle" >
-                                    {/* <img src={profileImage} alt="user-profile"/> */}
+                                    <img src={profileImage} alt="user-profile"/>
                                 </div>
                                 <div className="flex flex-column p-2" >
-                                    <span className="heading2-sm font-bold">{decode.name}</span>
-                                    <span className="subheading2-sm ">{decode.email}</span>                                  
+                                    <span className="heading2-sm font-bold">{userInfo.name}</span>
+                                    <span className="subheading2-sm ">{userInfo.email}</span>                                  
                                 </div>
                                 <div className='dropmenu-container'>
                                     <div className="block cursor-pointer" onClick={(e)=>toggleDropdown(e)}>
@@ -139,11 +125,11 @@ function ProfileConfig() {
                                     <div className={`dropdown-menu-profile ${dropMenuProfile?"":"hidden"}`} >
                                         <input type="file" ref={inputFile} className="hidden" onChange={(e)=>handleChangeImage(e)}/>
                                         <div className="dropdown-menu-item" onClick={()=>inputFile.current.click()} style={{borderBottom:'1px solid #DBDFEA'}}>
-                                            <span className="pr-2"><i class="fas fa-image"></i></span>
+                                            <span className="pr-2"><i className="fas fa-image"></i></span>
                                             <span>Change Photo  </span>
                                         </div>
                                         <div className="dropdown-menu-item" onClick={()=>inputFile.current.click()} style={{borderBottom:'1px solid #DBDFEA'}}>
-                                            <span className="pr-2"><i class="fas fa-image"></i></span>
+                                            <span className="pr-2"><i className="fas fa-image"></i></span>
                                             <span>Make offline </span>
                                         </div>
                                     </div>

@@ -86,8 +86,14 @@ exports.signin = async (req,res)=>{
         res.json({status:'failed',message:'Please ensure your email and password are correct'})
       }else{
           bcrypt.compare(formData.password,checkUser.password,(err,result)=>{
-              if(result){                
-                  let token = getToken(checkUser)              
+              if(result){                 
+                  let userInfo = {
+                        id:checkUser.id,
+                        email:checkUser.email,
+                        name: checkUser.username,
+                        role:checkUser.role,
+                        token:getToken(checkUser) 
+                 }             
                   user_login.update(newDataAgent,{where:{fk_account_id:checkUser.id}})
                   .then(()=>{
                         return user_setting.findOne({where:{fk_account_id:checkUser.id}})
@@ -96,11 +102,10 @@ exports.signin = async (req,res)=>{
                     if(result.store_activity){
                             user_history.create({history:`You login in ${newDataAgent.last_city} ${newDataAgent.last_country}`,fk_account_id:checkUser.id}) 
                           } 
-                          res.cookie('userInfo',token,{httpOnly: false, secure: false, maxAge: 3600000})
-                          res.json({status:'success',token:token})  
+                          res.json({status:'success',token:userInfo})  
                   })
                   .catch(err=>{
-                      res.json({status:'failed',message:err.message})
+                      res.status(404).json({status:'failed',message:err.message})
                   })
                                              
               }else{
@@ -109,7 +114,7 @@ exports.signin = async (req,res)=>{
           })
       }
     }catch(err){
-        res.json({status:'failed',message:'Tidak dapat terhubung ke database'})
+        res.status(404).json({status:'failed',message:'Tidak dapat terhubung ke database'})
     }
 }
 

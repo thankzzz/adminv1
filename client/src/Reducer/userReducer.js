@@ -30,7 +30,7 @@ const userProfileReducer = (state={userProfile:[]},action)=>{
       case USERINFO_FETCH_SUCCESS:
         return {loading:false,userProfile:action.payload};
       case USERINFO_FETCH_FAIL:
-        return {loading:false,error:action.payload}
+        return {loading:false,userProfile:[]}
       default:return state;
     }
 }

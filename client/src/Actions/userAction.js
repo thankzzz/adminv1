@@ -1,9 +1,10 @@
 import Axios from "axios";
 import moment from 'moment'
-
+import {errorNotification} from '../UI/Toast/NotificationSetting'
+import {store} from 'react-notifications-component'
 import Cookie from 'js-cookie';
-import jwt_decode from "jwt-decode";
-import { Redirect } from "react-router-dom";
+
+
 import {
   ACCOUNT_SIGNIN_REQUEST, 
   ACCOUNT_SIGNIN_SUCCESS,
@@ -15,6 +16,13 @@ import {
 } from "../Type/usertype";
 import axios from "axios";
 
+const forceSignout = ()=>{
+  Cookie.remove("userInfo")
+  store.addNotification({
+    ...errorNotification,
+    message:"You need to login first"
+  })
+}
 
 const signin = (loginData) => async (dispatch) =>{
   dispatch({type:ACCOUNT_SIGNIN_REQUEST})
@@ -29,50 +37,50 @@ const signin = (loginData) => async (dispatch) =>{
       last_country:dataLocation.country_name,
       last_city:dataLocation.city
     }  
-    const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost)
-    if(data.status === "success"){
-      Cookie.set('userInfo',data.token)
-      dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data.token})
-      
-    }else{
-     
-      dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:data.message})
-    }  
+      const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost) 
+      if(data.status === "success"){
+        Cookie.set('userInfo',data.token,{secure:false})
+        dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data.token})   
+      }else{
+        dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:data.message})
+      }
+           
   }catch(err){
     dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:err.message})
   }
 }
-const signout = () => async(dispatch)=>{
+const signout = () => (dispatch,getState)=>{
   Cookie.remove("userInfo");
+  const {userSignin:{userInfo}} = getState()
+  
+  Axios.put(`http://localhost:8080/api/user/agent/login-session/update/${userInfo.id}`)
   dispatch({ type: ACCOUNT_SIGNOUT })
-}
+} 
 const getInfoUser = () => async(dispatch,getState) =>{
   dispatch({type:USERINFO_FETCH_REQUEST})
- 
   const {userSignin:{userInfo}} = getState()
-  console.log(userInfo)
   try{
-    let decode = await jwt_decode(userInfo)
-    var {data} = await axios.get(`http://localhost:8080/api/user/${decode.id}`,{
+    var {data} = await axios.get(`http://localhost:8080/api/user/${userInfo.id}`,{
       headers:{
-          Authorization:'Bearer'+ userInfo
+          Authorization:'Bearer'+ userInfo.token
       }
-  })
-    // let tmpData = {
-    //   fullname:data.info.fullname || null, 
-    //   address:data.info.address || null,
-    //   phone:data.info.phone || null,
-    //   image_file:data.info.image_file || null,
-    //   dateofbirth: moment(data.info.dateofbirth).format("DD/MM/YYYY")
-      
-    // }
-    // console.log(tmpData)
+    })  
     dispatch({type:USERINFO_FETCH_SUCCESS,payload:data.info})
   }catch(err){
-    Cookie.remove("userInfo");
-    window.location.href = "http://localhost:3000/login";
-    dispatch({type:USERINFO_FETCH_FAIL,payload:err.message})
+    if(err.response.status === 401 || err.response.status === 403 ){
+      forceSignout()
+      dispatch({type:USERINFO_FETCH_FAIL})
+      
+    }else {
+      store.addNotification({
+        ...errorNotification,
+        message:err.message
+      })
+      dispatch({type:USERINFO_FETCH_FAIL})
+    }
+    
   }
 }
-export {signin,signout,getInfoUser}
+
+export {signin,signout,getInfoUser,forceSignout}
 

@@ -2,7 +2,7 @@
 import React,{useState,useEffect} from 'react'
 import Axios from 'axios'
 import {useSelector} from 'react-redux'
-import jwt_decode from 'jwt-decode'
+
 import moment from 'moment'
 import Pagination from '../../UI/Pagination/Pagination'
 function History({content}) {
@@ -11,7 +11,7 @@ function History({content}) {
     const [currentPage,setCurrentPage] = useState(1)
     const userState = useSelector(state=>state.userSignin)
     const {userInfo} = userState
-    const decode = jwt_decode(userInfo)
+    
     const incrementPage = ()=>{
         setCurrentPage(prevState => prevState + 1)
     }
@@ -23,7 +23,7 @@ function History({content}) {
     const getHistoryData = async()=>{
          let {data} = await Axios({
              method : "GET",
-             url: 'http://localhost:8080/api/user/history/' + decode.id,
+             url: 'http://localhost:8080/api/user/history/' + userInfo.id,
             params:{page:currentPage}
          })
         

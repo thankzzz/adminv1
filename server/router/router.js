@@ -1,3 +1,4 @@
 const account = require('./accountRouter')
 const user = require('./userRouter')
-module.exports = {account,user}
+const token = require('./tokenRouter')
+module.exports = {account,user,token}
