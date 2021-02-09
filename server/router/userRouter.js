@@ -5,15 +5,15 @@ const user = require('../controller/userController')
 const {isAuth} = require('../util')
 
 //Read user Information
-Router.get('/:id',isAuth,user.getData)
+Router.get('/',isAuth,user.getData)
 
 //Update user information
-Router.put('/update/:id',isAuth,user.update)
+Router.put('/update/',isAuth,user.update)
 
 Router.put('/upload/:id',user.uploadImage)
 
 //get user last login and ip
-Router.get('/agent/:id',user.getAgent)
+Router.get('/agent/',isAuth,user.getAgent)
 
 Router.put('/agent/login-session/update/:id',user.updateAgent_login_session)
 

@@ -19,7 +19,7 @@ const corsOptions = {
 app.use(cors());
 app.use('/api/account',cors(corsOptions),account)
 app.use('/api/user',cors(corsOptions),user)
-app.use('/api/token',cors(corsOptions),token)
+app.use('/api/auth',cors(corsOptions),token)
 app.listen('8080',()=>{
     console.log('koneksi ke server berhasil')
 })

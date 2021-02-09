@@ -2,16 +2,16 @@ const Sequelize = require('sequelize');
 const db = require('../database/database')
 
 
-const blacklistToken = db.define('tb_blacklist_token',{
+const refreshToken = db.define('tb_refresh_token',{
     id:{
         primaryKey:true,
-        type: Sequelize.UUID,
-        defaultValue:Sequelize.UUIDV1,   
+        type:Sequelize.INTEGER,
+        autoIncrement:true
     },
-    blacklist_token:{
+    refresh_token:{
         type: Sequelize.STRING(),
         allowNull: true
     },
 })
 
-module.exports= blacklistToken
+module.exports = {refreshToken}

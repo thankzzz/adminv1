@@ -1,8 +1,9 @@
 const db = require('../database/database')
 const account = require('../model/accountModel')
 const {user,user_login,user_history,user_setting} = require('../model/userModel')
+const {refreshToken} = require('../model/refreshTokenModel')
 const bcrypt = require('bcrypt')
-const {getToken} = require('../util')
+const {getToken,getRefreshToken} = require('../util')
 const uuid = require('uuid');
 const path = require("path");
 const fs = require('fs')
@@ -88,13 +89,16 @@ exports.signin = async (req,res)=>{
           bcrypt.compare(formData.password,checkUser.password,(err,result)=>{
               if(result){                 
                   let userInfo = {
-                        id:checkUser.id,
+                        username:checkUser.username,
                         email:checkUser.email,
-                        name: checkUser.username,
-                        role:checkUser.role,
-                        token:getToken(checkUser) 
-                 }             
+                        role:checkUser.role
+                 }      
+                 let accessToken = getToken(checkUser)
+                 let refresh_Token = getRefreshToken(checkUser)     
                   user_login.update(newDataAgent,{where:{fk_account_id:checkUser.id}})
+                  .then(()=>{
+                      return refreshToken.create({refresh_token:refresh_Token})
+                  })
                   .then(()=>{
                         return user_setting.findOne({where:{fk_account_id:checkUser.id}})
                   })
@@ -102,9 +106,11 @@ exports.signin = async (req,res)=>{
                     if(result.store_activity){
                             user_history.create({history:`You login in ${newDataAgent.last_city} ${newDataAgent.last_country}`,fk_account_id:checkUser.id}) 
                           } 
-                          res.json({status:'success',token:userInfo})  
+                         
+                          res.json({status:'success',user:userInfo,accessToken:accessToken,refreshToken:refresh_Token})  
                   })
                   .catch(err=>{
+                      console.log(err.message)
                       res.status(404).json({status:'failed',message:err.message})
                   })
                                              
@@ -117,7 +123,14 @@ exports.signin = async (req,res)=>{
         res.status(404).json({status:'failed',message:'Tidak dapat terhubung ke database'})
     }
 }
-
+exports.signout = async(req,res) =>{
+    const token = req.body.refreshToken
+    refreshToken.destroy({where:{refresh_token:token}}).then(()=>{
+        console.log('Refresh Token Deleted')
+    }).catch(err=>{
+        console.log(err.message)
+    })
+}
 exports.delete = async(req,res)=>{
     const id = req.params.id
     let data =  await account.findOne({where:{id:id}})

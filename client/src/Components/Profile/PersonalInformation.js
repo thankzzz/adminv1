@@ -1,9 +1,9 @@
 import React, {useState} from "react";
-import Axios from "axios";
+import Axios from "../../Api"
 import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
 import {store} from 'react-notifications-component'
 import {useDispatch,useSelector} from 'react-redux'
-import {getInfoUser,forceSignout} from '../../Actions/userAction'
+import {getInfoUser} from '../../Actions/userAction'
 import moment from 'moment'
 
 
@@ -39,8 +39,8 @@ function PersonalInformation() {
             address: editInfo.address,
             phone: editInfo.phone,
             dateofbirth: editInfo.dateofbirth
-        }
-        Axios.put(`http://localhost:8080/api/user/update/${userInfo.id}`,updateData,{
+        }   
+        Axios.put(`http://localhost:8080/api/user/update/`,updateData,{
                 headers:{
                     Authorization:'Bearer'+userInfo.token
                 }
@@ -51,14 +51,14 @@ function PersonalInformation() {
                     message: 'Information has been updated successfully'  ,
                 });
             }).catch(err=>{  
-                if(err.respose.status === 401 || err.response.status === 403){
-                    dispatch(forceSignout())                   
-                }else{
+                // if(err.respose.status === 401 || err.response.status === 403){
+                //     dispatch(forceSignout())                   
+                // }else{
                     store.addNotification({
                         ...errorNotification,
                         message: err.message  ,
                     });
-                }                                         
+                // }                                         
             })
         
     }

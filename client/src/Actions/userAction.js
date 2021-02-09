@@ -1,9 +1,9 @@
-import Axios from "axios";
+// import Axios from "axios";
 import moment from 'moment'
 import {errorNotification} from '../UI/Toast/NotificationSetting'
 import {store} from 'react-notifications-component'
 import Cookie from 'js-cookie';
-
+import Axios from '../Api'
 
 import {
   ACCOUNT_SIGNIN_REQUEST, 
@@ -28,6 +28,7 @@ const signin = (loginData) => async (dispatch) =>{
   dispatch({type:ACCOUNT_SIGNIN_REQUEST})
   let getLocation = await Axios.get(`https://ipapi.co/json/`)
   let dataLocation = getLocation.data
+ 
   try{
     let dataPost ={
       email : loginData.email,
@@ -39,38 +40,39 @@ const signin = (loginData) => async (dispatch) =>{
     }  
       const {data} = await Axios.post('http://localhost:8080/api/account/signin',dataPost) 
       if(data.status === "success"){
-        Cookie.set('userInfo',data.token,{secure:false})
-        dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data.token})   
-      }else{
+        var expireTimeToken= new Date(new Date().getTime() + 15 * 1000);
+        var expireTimeReToken= new Date(new Date().getTime() + 8 *60 * 60 * 1000);
+        Cookie.set('accessToken',data.accessToken)
+        Cookie.set('refreshToken',data.refreshToken)
+        Cookie.set('userInfo',data.user)
+        dispatch({type:ACCOUNT_SIGNIN_SUCCESS,payload:data.user})   
+      }else{ 
         dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:data.message})
       }
            
   }catch(err){
+    console.log(err.message)
     dispatch({type:ACCOUNT_SIGNIN_FAIL,payload:err.message})
   }
 }
 const signout = () => (dispatch,getState)=>{
   Cookie.remove("userInfo");
+  Cookie.remove("accessToken")
+  Cookie.remove("refreshToken")
   const {userSignin:{userInfo}} = getState()
   
   Axios.put(`http://localhost:8080/api/user/agent/login-session/update/${userInfo.id}`)
   dispatch({ type: ACCOUNT_SIGNOUT })
 } 
-const getInfoUser = () => async(dispatch,getState) =>{
+const getInfoUser = () => async(dispatch) =>{
   dispatch({type:USERINFO_FETCH_REQUEST})
-  const {userSignin:{userInfo}} = getState()
   try{
-    var {data} = await axios.get(`http://localhost:8080/api/user/${userInfo.id}`,{
-      headers:{
-          Authorization:'Bearer'+ userInfo.token
-      }
-    })  
+    var {data} = await axios.get(`http://localhost:8080/api/user/`)  
     dispatch({type:USERINFO_FETCH_SUCCESS,payload:data.info})
   }catch(err){
     if(err.response.status === 401 || err.response.status === 403 ){
-      forceSignout()
-      dispatch({type:USERINFO_FETCH_FAIL})
-      
+      // forceSignout()
+      dispatch({type:USERINFO_FETCH_FAIL})  
     }else {
       store.addNotification({
         ...errorNotification,

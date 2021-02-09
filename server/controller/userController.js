@@ -38,7 +38,8 @@ const Storage = multer.diskStorage({
   }).single('user_image')
 
 exports.getData = async(req,res)=>{
-    const id  = req.params.id
+    const id  = req.user
+    console.log(id)
     try{
         let data = await user.findOne({where:{fk_account_id:id}})
         if(data){
@@ -54,7 +55,7 @@ exports.getData = async(req,res)=>{
 
 
 exports.update = async(req,res)=>{
-    const id = req.params.id
+    const id = req.user
     const updateData = {
         fullname : req.body.fullname,
         phone : req.body.phone,
@@ -77,10 +78,11 @@ exports.update = async(req,res)=>{
 }
 
 exports.getAgent = async(req,res)=>{
-    const id = req.params.id
+    const id = req.user
    try{
        let data = await user_login.findOne({where:{fk_account_id:id}})
        if(data){
+           
            res.json({status:'success',info:data})
        }else{
            res.json({status:'failed',message:'tidak ditemukan data'})

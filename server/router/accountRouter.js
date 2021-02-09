@@ -6,6 +6,8 @@ Router.post('/create',account.signup)
 
 Router.post('/signin',account.signin)
 
+Router.delete('/signout',account.signout)
+
 Router.delete('/delete/:id',account.delete)
 
 Router.put('/change/password/:id',account.reset)

@@ -6,7 +6,7 @@ import PersonalInformation from './PersonalInformation'
 import SecuritySetting from './SecuritySetting'
 import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
 import {store} from 'react-notifications-component'
-import Axios from 'axios'
+import Axios from '../../Api'
 import moment from 'moment'
 import History from './history'
 import {useSelector,useDispatch} from 'react-redux'
@@ -26,24 +26,19 @@ function ProfileConfig() {
         last_login: '',
         last_ip: ''
     })
-    
     const inputFile = useRef(null)
-    
-  
     const getDataUser = useCallback(async () => {
         dispatch(getInfoUser())
     }, []);// eslint-disable-line react-hooks/exhaustive-deps
-    
-        const getUserAgent = async () => {
-            try{
-                let { data } = await Axios.get(`http://localhost:8080/api/user/agent/${userInfo.id}`,{
-                    headers:{
-                        Authorization:'Bearer' + userInfo.token
-                    }
-                })
-            
+
+    const getUserAgent = async () => {
+            try{                    
+                let { data } = await Axios.get(`http://localhost:8080/api/user/agent/`)            
                 if(!data.info){
-                    console.log('disconect')
+                    store.addNotification({
+                        ...errorNotification,
+                        message:'Data tidak ditemukan'
+                    })
                 }else{
                     let checkOnline = data.info.online ? <span style={{ color: '#00af91', fontWeight: 'bold' }}>Online <i className="fas fa-circle"></i> </span> : moment(data.info.last_login).format("DD MMMM YYYY HH:MM:SS")
                     setUserAgent({ ...userAgent, last_login: checkOnline, last_ip: data.info.last_ip })
@@ -51,8 +46,7 @@ function ProfileConfig() {
                 }   
             }catch(err){
                 console.log(err.message)
-            }
-            
+            }          
         }
     const toggleDropdown = (e) =>{
         e.preventDefault()       
