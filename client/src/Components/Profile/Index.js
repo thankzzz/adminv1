@@ -11,6 +11,7 @@ import moment from 'moment'
 import History from './history'
 import {useSelector,useDispatch} from 'react-redux'
 import {getInfoUser} from '../../Actions/userAction'
+import {forcelogout} from '../GlobalAction'
 
 function ProfileConfig() {
     const { url, path } = useRouteMatch()
@@ -45,7 +46,14 @@ function ProfileConfig() {
                     
                 }   
             }catch(err){
-                console.log(err.message)
+                if(err.response.status === 403 || err.response.status === 401){
+                    forcelogout()
+                }else{
+                    store.addNotification({
+                        ...errorNotification,
+                        message:err.message
+                    })
+                }
             }          
         }
     const toggleDropdown = (e) =>{
@@ -87,7 +95,7 @@ function ProfileConfig() {
     const profileImage = userProfile.image_file?'data:image/png;base64,' + new Buffer(userProfile.image_file, 'binary').toString('base64'):process.env.PUBLIC_URL + '/assets/img/gallery/dummy-profile1.png'
     useEffect(() => {
         getUserAgent()
-        getDataUser()
+        // getDataUser()
     }, [])// eslint-disable-line react-hooks/exhaustive-deps
    
     return (

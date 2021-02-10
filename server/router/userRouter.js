@@ -4,6 +4,17 @@ const Router = express.Router();
 const user = require('../controller/userController')
 const {isAuth} = require('../util')
 
+// User_login
+Router.post('/signup',user.signup)
+
+Router.post('/signin',user.signin)
+
+Router.post('/signout',user.signout)
+
+// Router.delete('/delete/:id',user.delete)
+
+Router.put('/change/password/:id',user.reset)
+
 //Read user Information
 Router.get('/',isAuth,user.getData)
 

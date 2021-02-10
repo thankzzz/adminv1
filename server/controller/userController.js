@@ -1,12 +1,14 @@
 
 const db = require('../database/database')
+const uuid = require('uuid')
+const {user_info,user_login,user_setting,user_agent,user_image} = require('../model/userModel')
 
-const {user,user_login,user_history, user_setting} = require('../model/userModel')
-const { Op } = require("sequelize");
 const multer = require('multer')
 const path = require("path");
 const fs = require('fs');
-const moment =require('moment')
+const {getToken,getRefreshToken} = require('../util')
+const bcrypt = require('bcrypt')
+const refreshToken = require('../model/refreshTokenModel');
 const Storage = multer.diskStorage({
     destination: path.join(__dirname + './../../client/public/assets/img/Gallery'),
     filename: function (req, file, cb) {
@@ -36,7 +38,162 @@ const Storage = multer.diskStorage({
       checkFileType(file, cb);
     }
   }).single('user_image')
+  
+exports.signup = async (req,res)=>{
+    const formData = {
+        id:uuid.v1(),
+        username: req.body.username,
+        email:req.body.email,
+        password: req.body.password,
+        role: 'user',
+        status: true
+    }
+    
+    let username = await user_login.findOne({where:{username:formData.username}})
+    let email = await user_login.findOne({where:{email:formData.email}})
+    if(email){
+        res.json({status:'failed',message:"A user with this email address already exists"})
+    }else if(username){
+        res.json({status:'failed',message:"A user with this username already exists"})
+    }else{
+        bcrypt.hash(formData.password,10,(err,hash)=>{
+            if(err){res.status(401).json({status:'failed',message:'Terjadi kesalahan pada server'})}
+            else{
+                formData.password = hash
+                user_login.create(formData,{raw:true}).then(()=>{
+                    return user_info.create({
+                        fullname:null,
+                        phone:null,
+                        address:null,
+                        dateofbirth:null,
+                        image_name:null,
+                        image_file:null,
+                        fk_account_id:formData.id
+                    })
+                
+                    
+                })
+                .then(()=>{
+                    return user_agent.create({
+                        last_login:null,
+                        last_ip:null,
+                        online:false,
+                        fk_account_id:formData.id
+                    })
+                })
+                .then(()=>{
+                    return  user_setting.create({
+                        store_activity:false,
+                        fk_account_id:formData.id
+                        })
+                })
+                .then(()=>{
+                    res.status(200).json({status:'success'})
+                })
+                .catch(err=>{
+                    res.json({status:'failed',message:err.message})
+                })
+            }               
+        })  
+    }  
+}
 
+exports.signin = async(req,res)=>{
+    const formData= {
+        email:req.body.email,
+        password:req.body.password,
+    }
+   
+    const dataAgent = {
+        last_login:req.body.last_login,
+        last_ip:req.body.last_ip,
+        last_country:req.body.last_country,
+        last_city:req.body.last_city,
+        online:true
+    }
+    let user = await user_login.findOne({where:{email:formData.email}})  
+        if(!user){
+            res.status({status:'failed',message:'User tidak terdaftar'})
+        }else{
+            bcrypt.compare(formData.password,user.password,(err,result)=>{
+                if(err) throw err('Password is incorrect')
+                if(result){
+                    let userInfo = {
+                        username:user.username,
+                        email:user.email,
+                        role:user.role
+                    }      
+                    let accessToken = getToken(user)
+                    let refresh_Token = getRefreshToken(user)  
+                    refreshToken.create({refresh_token:refresh_Token})
+                    .then(()=>{
+                        return user_agent.update(dataAgent,{where:{fk_account_id:user.id}})
+                    })
+                    .then(()=>{
+                        return user_setting.findOne({where:{fk_account_id:user.id}})
+                    })
+                    .then(setting=>{
+                        if(setting.store_activity){
+                            return user_history.create({history:`You login in ${newDataAgent.last_city} ${newDataAgent.last_country}`,fk_account_id:user.id})
+                        }
+                        res.status(200).json({status:"success",accessToken:accessToken,refreshToken:refresh_Token,user:userInfo})
+                    })
+                    .catch(err=>{
+                        res.status(401).json({status:"failed",message:err.message})
+                    })
+                }
+            })
+        }   
+}
+exports.signout = async(req,res) =>{
+    const token = req.body.refreshToken
+    const last_login = req.body.last_login
+    refreshToken.destroy({where:{refresh_token:token}}).then(()=>{
+        return user_agent.update({last_login:last_login,online:false},{where:{fk_account_id:"16499690-6b71-11eb-8589-3377ada10b1b"}})
+    })
+    .then(()=>{
+        res.json({status:"success"})
+    }).catch(err=>{
+        
+        res.json({status:"failed",message:err.message})
+    })
+   
+}
+
+
+exports.reset = async(req,res) =>{
+    var id  = req.params.id
+    var oldpassword = req.body.oldPassword
+    var newpassword = req.body.newPassword
+    let data = await user_login.findOne({where:{id:id}})
+    if(data){
+        bcrypt.compare(oldpassword,data.password,(err,result)=>{
+            if(err){
+               res.status(401).json({status:'failed',message:'Old password you have entered is incorrect'})
+            }else{
+                bcrypt.hash(newpassword ,10,(err,hash)=>{
+                    if(err){
+                        res.status(401).json({status:'failed',message:'Terjadi kesalahan pada server'})
+                    }else{                        
+                           user_login.update({password:hash},{where:{id:id}})
+                           .then(()=>{
+                              return user_setting.findOne({where:{fk_account_id:id}})})
+                            .then(setting=>{                              
+                              if(setting.store_activity){
+                                    user_history.create({history:`You changed password`,fk_account_id:id}) 
+                                }  
+                                return  res.json({status:'success',info:result1})
+                            })                           
+                            .catch(err=>{
+                              return res.json({status:'failed',message:err.message})
+                            })                                                  
+                    }
+                })
+                
+            }
+        })
+    }
+}
 exports.getData = async(req,res)=>{
     const id  = req.user
     console.log(id)
@@ -45,7 +202,7 @@ exports.getData = async(req,res)=>{
         if(data){
             res.status(200).json({status:'success',info:data})
         }else{
-            res.status(404).json({status:'failed',message:'Tidak ada data'})
+            res.json({status:'failed',message:'Tidak ada data'})
         }
     }catch(err){ 
         console.log(err.message)
@@ -80,12 +237,11 @@ exports.update = async(req,res)=>{
 exports.getAgent = async(req,res)=>{
     const id = req.user
    try{
-       let data = await user_login.findOne({where:{fk_account_id:id}})
+       let data = await user_agent.findOne({where:{fk_account_id:id}})
        if(data){
-           
            res.json({status:'success',info:data})
        }else{
-           res.json({status:'failed',message:'tidak ditemukan data'})
+           res.json({status:'failed',message:'Tidak ditemukan data'})
            
        }
    }catch(err){

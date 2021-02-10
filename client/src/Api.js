@@ -9,7 +9,7 @@ Axios.interceptors.request.use(
       const accessToken = Cookie.get("accessToken");
       
       if (accessToken) {
-        config.headers["x-auth-token"] ='bearer'+ accessToken;
+        config.headers["authorization"] ='bearer'+ accessToken;
       }
       return config;
     },
@@ -28,20 +28,25 @@ Axios.interceptors.request.use(
      
       const originalRequest = error.config;
       let refreshToken = Cookie.get("refreshToken");
-    
+      console.log(error.response)
   if (
-        refreshToken
+        refreshToken &&
+        error.response.status === 401 &&
+        !originalRequest._retry
       ) {
-       
         originalRequest._retry = true;
         return Axios
           .post(`${baseUrl}/auth/token`, { refreshToken: refreshToken })
           .then((res) => {
-            if (res.status === 200) {
-              Cookie.set("accessToken", res.data.accessToken);
+            console.log(res.data)
+            if (res.data.status === 'success') {
+              Cookie.set("accessToken", res.data.newToken);
+              Cookie.remove("refreshToken")
               console.log("Access token refreshed!");
               return Axios(originalRequest);
             }
+          }).catch(err=>{
+            console.log(err.message)
           });
       }
      
@@ -59,8 +64,8 @@ Axios.interceptors.request.use(
 //     logout: (body) => {
 //       return Axios.delete(`${baseUrl}/account/signout`, body);
 //     },
-//     getUserAgent: () => {
-//       return Axios.get(`${baseUrl}/user/agent/`);
+//     getUserInfo: () => {
+//       return Axios.get(`${baseUrl}/user/data`);
 //     },
 //   };
 

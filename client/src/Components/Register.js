@@ -26,37 +26,47 @@ const validationSchema = Yup.object({
 });
 function Register() {
   
-  
    const [loading,setLoading] = useState(false)
-   
    const handleSignup = async (e,formik) =>{
+     
       e.preventDefault()
+      alert('dasda')
       setLoading(true)
       if(formik.values.password !== formik.values.confirmPassword){
         store.addNotification({
           errorNotification,
           message:"Password and confirm password does not match"
         })
+        setLoading(false)
       }else{  
         let dataPost = {
           username:formik.values.username,
           email:formik.values.email,
           password:formik.values.password
         }
-        Axios.post('http://localhost:8080/api/account/create',dataPost).then(()=>{
-          formik.resetForm()
+        Axios.post('http://localhost:8080/api/user/signup',dataPost).then(result=>{
+          let data = result.data
+          if(data.status ==="success"){
             store.addNotification({
-                ...successNotification,
-                message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account'
-              })
-              setLoading(false)
+              ...successNotification,
+              message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account'
+            })
+          }else{
+            store.addNotification({
+              ...errorNotification,
+              message:data.message
+            })
+          }
+          formik.resetForm()
+          setLoading(false)
         })
         .catch(err=>{
+          setLoading(false)
           store.addNotification({
             ...errorNotification,
             message:err.message
           })
-          setLoading(false)
+          
         formik.resetForm()
         })
         

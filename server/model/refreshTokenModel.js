@@ -9,9 +9,9 @@ const refreshToken = db.define('tb_refresh_token',{
         autoIncrement:true
     },
     refresh_token:{
-        type: Sequelize.STRING(),
+        type: Sequelize.TEXT,
         allowNull: true
     },
 })
 
-module.exports = {refreshToken}
+module.exports = refreshToken

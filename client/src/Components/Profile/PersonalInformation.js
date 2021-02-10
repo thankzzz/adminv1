@@ -6,7 +6,7 @@ import {useDispatch,useSelector} from 'react-redux'
 import {getInfoUser} from '../../Actions/userAction'
 import moment from 'moment'
 
-
+import Cookie from 'js-cookie'
 
 function PersonalInformation() {
     const dispatch = useDispatch()
@@ -40,11 +40,7 @@ function PersonalInformation() {
             phone: editInfo.phone,
             dateofbirth: editInfo.dateofbirth
         }   
-        Axios.put(`http://localhost:8080/api/user/update/`,updateData,{
-                headers:{
-                    Authorization:'Bearer'+userInfo.token
-                }
-            }).then(()=>{
+        Axios.put(`http://localhost:8080/api/user/update/`,updateData).then(()=>{
                 dispatch(getInfoUser())
                 store.addNotification({
                     ...successNotification,

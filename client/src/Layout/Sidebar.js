@@ -93,7 +93,7 @@ function Sidebar() {
                                 <span className="menu-text">Profile   </span>                        
                                 </Link>
                             </li>                          
-                            <li onClick={()=>dispatch(signout())}>
+                            <li onClick={(e)=>dispatch(signout(e))}>
                                 <a href="/#" className="menu-item">
                                 <i className="fas fa-sign-out-alt menu-icon fa-2x"></i>
                                 <span className="menu-text">Sign Out   </span>                        

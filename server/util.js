@@ -34,14 +34,13 @@ const getRefreshToken = (user) => {
   );
 };
 const isAuth = async(req, res, next) => {
-  const authHeader = req.headers['x-auth-token']
-  
+  const authHeader = req.headers['authorization']
   const token = authHeader.slice(6,authHeader.length)
   if(token == null )return res.sendStatus(401)
   jwt.verify(token,process.env.JWT_SECRET,(err,user)=>{ 
     if(err){
       
-    return res.sendStatus(403)}
+    return res.sendStatus(401)}
     req.user = user.id
     next()
   })
