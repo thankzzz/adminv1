@@ -27,10 +27,8 @@ const validationSchema = Yup.object({
 function Register() {
   
    const [loading,setLoading] = useState(false)
-   const handleSignup = async (e,formik) =>{
-     
+   const handleSignup = async (e,formik) =>{    
       e.preventDefault()
-      alert('dasda')
       setLoading(true)
       if(formik.values.password !== formik.values.confirmPassword){
         store.addNotification({
@@ -49,8 +47,9 @@ function Register() {
           if(data.status ==="success"){
             store.addNotification({
               ...successNotification,
-              message:'Register user berhasil, silahkan hubungi admin untuk aktivasi account'
+              message:'Your account was created successfully'
             })
+            setLoading(false)
           }else{
             store.addNotification({
               ...errorNotification,

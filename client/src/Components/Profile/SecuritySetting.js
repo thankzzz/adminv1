@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
-import Axios from "axios";
+import { errorNotification, successNotification } from '../../UI/Toast/NotificationSetting'
+import Axios from "../../Api";
 import { Formik, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import FormikControl from "../../Formik/formikControl";
@@ -8,7 +8,8 @@ import TextError from "../../Formik/textError";
 import moment from "moment";
 import { useSelector } from "react-redux";
 
-import {store} from 'react-notifications-component'
+import { store } from 'react-notifications-component'
+import { forcelogout } from "../GlobalAction";
 const initialValues = {
   oldPassword: "",
   newPassword: "",
@@ -29,72 +30,94 @@ function SecuritySetting() {
   const [settings, setSettings] = useState({
     store_activity: false,
   });
-  const userState = useSelector((state) => state.userSignin);
-  const { userInfo } = userState;
-  
+  const userSignin = useSelector(state => state.userSignin)
+  const { userInfo } = userSignin
   const [loading, setLoading] = useState(false);
   const getSetting = async () => {
     try {
       let { data } = await Axios.get(
-        `http://localhost:8080/api/user/setting/${userInfo.id}`
+        `http://localhost:8080/api/user/setting`
       );
       if (data.status === "success") {
         setSettings({ ...settings, store_activity: data.info.store_activity });
       } else {
-        console.log("data tidak ditemukan");
+        store.addNotification({
+          ...errorNotification,
+          message: 'Data tidak ditemukan 404'
+        });
       }
     } catch (err) {
-      console.log(err.message);
+      if (err.status === 401 || err.status === 403) {
+        forcelogout()
+      }
+      store.addNotification({
+        ...errorNotification,
+        message: err.message
+      });
     }
   };
 
-  const handleSubmitData = (e, formik) => {
+  const handleSubmitData = async (e, formik) => {
     e.preventDefault();
     setLoading(true);
     let updateData = {
       oldPassword: formik.values.oldPassword,
       newPassword: formik.values.newPassword,
     };
-    Axios.put(`http://localhost:8080/api/account/change/password/${userInfo.id}`,
-      updateData,{
-        headers:{ Authorization:'Bearer'+ userInfo}
-      })
-      .then(()=>{
-        setLoading(false);
-        formik.resetForm();     
+    try {
+      let { data } = await Axios.put('http://localhost:8080/api/user/change/password', updateData)
+      if (data.status === "success") {
         store.addNotification({
           ...successNotification,
-           message: `Password has been changed successfully` 
-        })
-      })
-      .catch(err=>{
+          message: 'Password has been changed successfully',
+        });
+        
+      } else {
         store.addNotification({
           ...errorNotification,
-          message: err.message ,       
+          message: data.message,
         });
-      }) 
+        
+      }
+      setLoading(false);
+      formik.resetForm();
+    } catch (err) {
+      if (err.status === 401 || err.status === 403) {
+        forcelogout()
+      } else {
+        store.addNotification({
+          ...errorNotification,
+          message: err.message,
+        });
+      }
+      setLoading(false);
+      formik.resetForm();
+    }
+
   };
 
   const handleChangeSetting = (e) => {
     setSettings({ ...settings, store_activity: !settings.store_activity });
     const updateActivity_setting = e.target.checked;
-    Axios.put(
-      `http://localhost:8080/api/user/setting/update/${userInfo.id}`,
-      { store_activity: updateActivity_setting }
-    ).then(()=>{
-      store.addNotification({
-        ...successNotification,
-        message:"Setting has been changed successfully",          
+    Axios.put('http://localhost:8080/api/user/setting/update/', { store_activity: updateActivity_setting })
+      .then(() => {
+        store.addNotification({
+          ...successNotification,
+          message: "Setting has been changed successfully",
+        })
+      }).catch(err => {
+        if (err.response.status === 401 || err.response.status === 403) {
+          forcelogout()
+        } else {
+          store.addNotification({
+            errorNotification,
+            message: err.message,
+          });
+        }
       })
-    }).catch(err=>{
-      store.addNotification({
-        errorNotification,
-        message: err.message  ,
-      });
-    })
   };
 
-const handleCancel = (e, formik) => {
+  const handleCancel = (e, formik) => {
     e.preventDefault();
     formik.resetForm();
   };
@@ -104,7 +127,7 @@ const handleCancel = (e, formik) => {
   const lastChangePassword = moment(userInfo.updatedAt).format("DD MMMM YYYY");
   return (
     <React.Fragment>
-     
+
 
       <div className="flex flex-column pd-top">
         <div className="heading2 pb-2">Security Setting</div>

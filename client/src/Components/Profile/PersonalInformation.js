@@ -1,20 +1,42 @@
-import React, {useState} from "react";
+import React, {useState,useCallback,useEffect} from "react";
 import Axios from "../../Api"
 import {errorNotification,successNotification} from '../../UI/Toast/NotificationSetting'
 import {store} from 'react-notifications-component'
-import {useDispatch,useSelector} from 'react-redux'
-import {getInfoUser} from '../../Actions/userAction'
+import {useSelector} from 'react-redux'
 import moment from 'moment'
+import { forcelogout } from "../GlobalAction";
 
-import Cookie from 'js-cookie'
 
 function PersonalInformation() {
-    const dispatch = useDispatch()
-    const userState = useSelector(state=>state.userInfo)
     const userLogin = useSelector(state=>state.userSignin)
-    const {userProfile} = userState
     const {userInfo} = userLogin
-   
+    const [userProfile,setUserProfile] = useState({
+        fullname:"",
+        address:"",
+        phone:"",
+        dateofbirth:""
+    })
+    const getUserInfo = useCallback(async()=>{
+        try{
+            let {data} = await Axios.get('http://localhost:8080/api/user/')  
+            let user = data.info
+            if(!user){
+                return;
+            }else{
+                
+                setUserProfile({...userProfile,fullname: user.fullname, address: user.address, phone: user.phone,dateofbirth:user.dateofbirth })
+            }  
+        }catch(err){
+            if (err.status === 403 || err.status === 401) {
+               forcelogout()
+            } else {
+                store.addNotification({
+                    ...errorNotification,
+                    message: err.message
+                })
+            }
+        }
+    },[])// eslint-disable-line react-hooks/exhaustive-deps
     
     const [editInfo, setEditInfo] = useState({
         fullname: "",
@@ -25,7 +47,6 @@ function PersonalInformation() {
     const isDataChanged =  userProfile.fullname === editInfo.fullname &&  userProfile.address === editInfo.address && userProfile.phone === editInfo.phone && userProfile.dateofbirth === editInfo.dateofbirth? true : false
     
     const handleEditInfo = () => {
-       
         setEditInfo({ ...editInfo, fullname: userProfile.fullname, address: userProfile.address, phone: userProfile.phone,dateofbirth:moment(userProfile.dateofbirth).format("YYYY-MM-DD")})
     }
     const handleChangeEditInfo = (e) => {
@@ -41,23 +62,26 @@ function PersonalInformation() {
             dateofbirth: editInfo.dateofbirth
         }   
         Axios.put(`http://localhost:8080/api/user/update/`,updateData).then(()=>{
-                dispatch(getInfoUser())
+                getUserInfo()
                 store.addNotification({
                     ...successNotification,
                     message: 'Information has been updated successfully'  ,
                 });
             }).catch(err=>{  
-                // if(err.respose.status === 401 || err.response.status === 403){
-                //     dispatch(forceSignout())                   
-                // }else{
+                if(err.status === 401 || err.status === 403){
+                   forcelogout()                  
+                }else{
                     store.addNotification({
                         ...errorNotification,
                         message: err.message  ,
                     });
-                // }                                         
+                }                                         
             })
-        
+       
     }
+    useEffect(()=>{
+        getUserInfo()
+    },[])// eslint-disable-line react-hooks/exhaustive-deps
     
     return (
         <React.Fragment>                   
@@ -72,7 +96,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Full name</span>
                             <span className="subheading3 font-medium py-2">
-                                {userProfile.fullname}
+                                {userProfile.fullname?userProfile.fullname:"Tidak ada data"}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -84,7 +108,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Display name</span>
                             <span className="subheading3 font-medium py-2">
-                                {userInfo.name}
+                                {userInfo.username}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -106,7 +130,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Address</span>
                             <span className="subheading3 font-medium py-2">
-                                {userProfile.address}
+                                {userProfile.address?userProfile.address:"Tidak ada data"}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -117,7 +141,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Phone Number</span>
                             <span className="subheading3 font-medium py-2">
-                                {userProfile.phone}
+                                {userProfile.phone?userProfile.phone:"Tidak ada data"}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -128,7 +152,7 @@ function PersonalInformation() {
                         <div className="flex flex-column">
                             <span className="heading3 py-2">Date Of Birth</span>
                             <span className="subheading3 font-medium py-2">
-                                {moment(userProfile.dateofbirth).format("DD MMMM YYYY")}
+                                {userProfile.dateofbirth?moment(userProfile.dateofbirth).format("DD MMMM YYYY"):'Tidak ada data'}
                             </span>
                         </div>
                         <div className="ml-auto">
@@ -161,19 +185,19 @@ function PersonalInformation() {
                                     <div className="form-group">
                                         <label className="form-label" htmlFor="fullname">Fullname</label>
                                         <div className="form-control-wrap">
-                                            <input type="text" className="form-control" id="fullname" placeholder="Input Fullname" value={editInfo.fullname} onChange={(e) => handleChangeEditInfo(e)} />
+                                            <input type="text" className="form-control" id="fullname" placeholder="Input Fullname" value={editInfo.fullname === null?"":editInfo.fullname} onChange={(e) => handleChangeEditInfo(e)} />
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label" htmlFor="displayname">Display Name</label>
                                         <div className="form-control-wrap">
-                                            <input type="text" className="form-control" id="displayname" placeholder="Input Display Name" disabled value={userInfo.name} />
+                                            <input type="text" className="form-control" id="displayname" placeholder="Input Display Name" disabled value={userInfo.username} />
                                         </div>
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label" htmlFor="phone">Phone Number</label>
                                         <div className="form-control-wrap">
-                                            <input type="number" className="form-control" id="phone" placeholder="Input phone" value={editInfo.phone} onChange={(e) => handleChangeEditInfo(e)} />
+                                            <input type="number" className="form-control" id="phone" placeholder="Input phone" value={editInfo.phone === null?"":editInfo.phone} onChange={(e) => handleChangeEditInfo(e)} />
                                         </div>
                                     </div>
                                     
@@ -182,14 +206,14 @@ function PersonalInformation() {
                                     <div className="form-group">
                                         <label className="form-label" htmlFor="address">Address</label>
                                         <div className="form-control-wrap">
-                                            <input type="text" className="form-control" id="address" placeholder="Input Address" value={editInfo.address} onChange={(e) => handleChangeEditInfo(e)} />
+                                            <input type="text" className="form-control" id="address" placeholder="Input Address" value={editInfo.address?editInfo.address:""} onChange={(e) => handleChangeEditInfo(e)} />
                                         </div>
 
                                     </div>
                                     <div className="form-group">
                                         <label className="form-label" htmlFor="dateofbirth">Date of birth</label>
                                         <div className="form-control-wrap">
-                                            <input type="date" className="form-control" id="dateofbirth" placeholder="Input Date of birth" value={editInfo.dateofbirth} onChange={(e) => handleChangeEditInfo(e)} />
+                                            <input type="date" className="form-control" id="dateofbirth" placeholder="Input Date of birth" value={editInfo.dateofbirth?editInfo.dateofbirth:" "} onChange={(e) => handleChangeEditInfo(e)} />
                                         </div>
 
                                     </div>

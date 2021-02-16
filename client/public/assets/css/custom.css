@@ -3,7 +3,9 @@
     outline: none;
    font-family: "Helvetica Neue", "Roboto", Arial, "Droid Sans", sans-serif;
   }
-
+  body{
+      background-color: #fff;
+  }
   .heading2{
       font-size:24px;
       font-style: normal;
@@ -11,10 +13,12 @@
       font-size: 24px;
       line-height: 28px;
       color:#21283A;
+      letter-spacing: 0.035em;
   }
   .heading2-sm{
     font-style: normal;
     font-weight: 500;
+    font-weight: bold;
     font-size: 16px;
     line-height: 28px;
     color:#21283A;
@@ -42,6 +46,15 @@
     font-size: 14px;
     line-height: 16px;
     letter-spacing: 0.07em;
+    color: #3F3939;
+}
+.subheading3-sm-it{
+    font-family: Roboto;
+    font-style: italic;
+    font-weight: normal;
+    font-size: 12px;
+    line-height: 16px;
+   
     color: #3F3939;
 }
 .subheading3-sm{
@@ -107,7 +120,7 @@
     
     .apps{
         width:100%;
-
+        background-color:#fff;
         height:100vh;
         display:flex;
         flex-direction:column;
@@ -324,32 +337,35 @@
     /* Content side */
         .content-side{
             width:100%;
-            
             padding:5px;
         }
         .content-container{
             height:100%;
             width:100%;
             border: 1px solid #DBDFEA;
-box-sizing: border-box;
+            box-sizing: border-box;
             overflow:auto;
+            padding:1rem;
+            background: rgba(76, 43, 102, 0.05)
         }
-        .content-aside{
+        .content-profile{
             display:flex;
             flex-direction:column;
-            background:#fff;
             border-radius:3px;
+         
         }
         .aside-left{
             width:100%;
             display:flex;
             flex-direction:column;
+            background: rgba(107, 71, 135, 0.05);
+           
             border-top-left-radius:3px;
         }
         .aside-right{
             width:100%;
             margin-bottom:50px;  
-            
+            background: rgba(107, 71, 135, 0.05);
         }
         .aside-column-item{
             padding:30px 0px;
@@ -470,6 +486,20 @@ box-sizing: border-box;
             flex-direction: column;
             align-items: center;
         }
+        .content-g-aside{
+            display:flex;
+            flex-direction: column;
+            
+        }
+        .setting-aside{
+          
+            padding:1rem;
+            display:flex;
+            flex-direction: column;
+            background: #FAFAFA;
+            box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+            border-radius: 3px;
+        }
     /* End Content side */
 
 @media (min-width: 1199.98px) { 
@@ -561,7 +591,7 @@ box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
     /* Component Content */
 
   
-    .content-aside{
+    .content-profile{
         display:flex;
         flex-direction:row; 
         height:100%;

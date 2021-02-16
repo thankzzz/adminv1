@@ -14,7 +14,7 @@ const getToken = (user) => {
     },
     process.env.JWT_SECRET,
     {
-      expiresIn: '15s'
+      expiresIn: '4h'
     }
   );
 };
@@ -29,7 +29,7 @@ const getRefreshToken = (user) => {
     },
     process.env.JWT_REFRESH_SECRET,
     {
-      expiresIn: '4h'
+      expiresIn: '8h'
     }
   );
 };

@@ -11,29 +11,34 @@ Router.post('/signin',user.signin)
 
 Router.post('/signout',user.signout)
 
-// Router.delete('/delete/:id',user.delete)
-
-Router.put('/change/password/:id',user.reset)
-
 //Read user Information
 Router.get('/',isAuth,user.getData)
-
 //Update user information
 Router.put('/update/',isAuth,user.update)
 
-Router.put('/upload/:id',user.uploadImage)
+
+//Read user Profile Image
+Router.get('/profile/image',isAuth,user.getProfileImage)
+//update user profile image
+Router.put('/upload/profile/image',isAuth,user.uploadImage)
+
 
 //get user last login and ip
 Router.get('/agent/',isAuth,user.getAgent)
 
-Router.put('/agent/login-session/update/:id',user.updateAgent_login_session)
+Router.put('/agent/login-session/update',isAuth,user.updateAgent_login_session)
 
-Router.get('/history/:id',user.getHistory)
+
+// Router.delete('/delete/:id',user.delete)
+Router.put('/change/password',isAuth,user.changePassword)
+
+
+Router.get('/history',isAuth,user.getHistory)
 
 Router.post('/history/create',user.createHistory)
 
-Router.get('/setting/:id',user.getSetting)
+Router.get('/setting',isAuth,user.getSetting)
 
-Router.put('/setting/update/:id',user.updateSetting)
+Router.put('/setting/update',isAuth,user.updateSetting)
 
 module.exports = Router

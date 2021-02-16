@@ -1,7 +1,7 @@
 
 import React,{useState,useEffect} from 'react'
-import Axios from 'axios'
-import {useSelector} from 'react-redux'
+import Axios from '../../Api'
+
 
 import moment from 'moment'
 import Pagination from '../../UI/Pagination/Pagination'
@@ -9,9 +9,7 @@ function History({content}) {
     const [details,setDetails] = useState([])
     const [totalHistory,setTotalHistory] = useState(0)
     const [currentPage,setCurrentPage] = useState(1)
-    const userState = useSelector(state=>state.userSignin)
-    const {userInfo} = userState
-    
+  
     const incrementPage = ()=>{
         setCurrentPage(prevState => prevState + 1)
     }
@@ -23,7 +21,7 @@ function History({content}) {
     const getHistoryData = async()=>{
          let {data} = await Axios({
              method : "GET",
-             url: 'http://localhost:8080/api/user/history/' + userInfo.id,
+             url: 'http://localhost:8080/api/user/history' ,
             params:{page:currentPage}
          })
         
@@ -31,7 +29,7 @@ function History({content}) {
             // setDetails(prevState =>{ return [...new Set([...prevState,...tmpData])]})
             setTotalHistory(data.total)
     }
-    const checkCurrentPaget = () =>{
+    const checkCurrentPage = () =>{
       
         if(currentPage > 7){
             setCurrentPage(7)
@@ -39,7 +37,7 @@ function History({content}) {
     }
     useEffect(()=>{
             getHistoryData()
-            checkCurrentPaget()
+            checkCurrentPage()
     },[currentPage])// eslint-disable-line react-hooks/exhaustive-deps
     return (
         <React.Fragment>
